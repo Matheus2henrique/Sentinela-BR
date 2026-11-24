@@ -913,7 +913,7 @@ label.l{display:block;font-size:11.5px;letter-spacing:.1em;text-transform:upperc
       <span class="chuva-icone" aria-hidden="true">🌧️</span>
       <div>
        <p class="chuva-selo">Previsão simulada</p>
-       <strong>Chuva na região de Alexânia</strong>
+       <strong id="chuva-titulo"></strong>
        <p id="chuva-trecho"></p>
        <p class="chuva-previsao">Pancadas previstas nos próximos 30 min.</p>
       </div>
@@ -1685,10 +1685,18 @@ function kmDaChuvaDemo(r) {
   });
   return Math.max(0, kmPerto - ANTECEDENCIA_CHUVA_DEMO);
 }
-function prepararChuvaDemo(r) {
-  if (PONTO_CHUVA_DEMO < 0 || (r !== R.rap && r !== R.maisSegura) ||
-    !cidadeDaApresentacao(OD.o, 'Brasília', 'DF') || !cidadeDaApresentacao(OD.d, 'Goiânia', 'GO')) return null;
-  return {km: kmDaChuvaDemo(r), inicio: null, pausadaEm: null};
+function prepararChuvaDemo(r, alertas) {
+  if (!cidadeDaApresentacao(OD.o, 'Brasília', 'DF') ||
+    !['Goiânia', 'Anápolis'].some(nome => cidadeDaApresentacao(OD.d, nome, 'GO'))) return null;
+  const alerta = alertas.find(({i}) => D.br[i] === 60 && ufn(i) === 'DF' && D.km[i] === 0);
+  const opcao = R.opcoes[escolha];
+  const exibirEmAlexania = PONTO_CHUVA_DEMO >= 0 && (opcao === R.rap || opcao === R.maisSegura);
+  if (!alerta && !exibirEmAlexania) return null;
+  return {
+    ponto: alerta?.i ?? PONTO_CHUVA_DEMO,
+    km: alerta ? Math.max(0, alerta.km - ANTECEDENCIA_ALERTA) : kmDaChuvaDemo(r),
+    inicio: null, pausadaEm: null
+  };
 }
 function atualizarChuvaDemo(s, t) {
   const chuva = s.chuvaDemo;
@@ -1697,7 +1705,8 @@ function atualizarChuvaDemo(s, t) {
   if (chuva.inicio === null) {
     if (s.pausa || s.km < chuva.km) return;
     chuva.inicio = t;
-    $('#chuva-trecho').textContent = rotuloTrecho(PONTO_CHUVA_DEMO);
+    $('#chuva-titulo').textContent = `Chuva na região de ${mun(chuva.ponto)}`;
+    $('#chuva-trecho').textContent = rotuloTrecho(chuva.ponto);
   }
   if (s.pausa) {
     chuva.pausadaEm ??= t;
@@ -1747,10 +1756,11 @@ $('#iniciar').onclick = () => {
   const r = R.opcoes[escolha];
   ir('s-nav');
   const dur = Math.min(150, Math.max(45, r.km / 30)); // segundos de demonstração no 1×
-  const chuvaDemo = prepararChuvaDemo(r);
+  const alertas = alertasDa(r);
+  const chuvaDemo = prepararChuvaDemo(r, alertas);
   const ritmo = chuvaDemo ? RITMO_CHUVA_DEMO : 1;
   sim = {
-    r, al: alertasDa(r), prox: 0, km: 0, k: 0, kmps: r.km / dur * ritmo,
+    r, al: alertas, prox: 0, km: 0, k: 0, kmps: r.km / dur * ritmo,
     t0: performance.now(), pausa: false, ditos: 0, saida: new Date(),
     avaliados: new Map(), avisados: new Set(), desvios: 0, oferta: null, alerta: null,
     posicao: ll(r)[0], veiculo: R.veiculo, busca: null, chuvaDemo
@@ -1843,8 +1853,8 @@ function concluirDesvio(aceitar) {
     const opcao = opcoes[selecionada], {de, ate, novo} = opcao;
     s.r = novo.coordenadas ? aplicarDesvioTomTom(s, opcao) :
       rotaDoCaminho(s.r.path.slice(0, de).concat(novo.path, s.r.path.slice(ate + 1)));
-    if (s.chuvaDemo?.inicio === null) s.chuvaDemo.km = kmDaChuvaDemo(s.r);
     s.al = alertasDa(s.r, s.km).filter(a => !s.avisados.has(a.i));
+    if (s.chuvaDemo?.inicio == null) s.chuvaDemo = prepararChuvaDemo(s.r, s.al);
     s.prox = 0;
     s.avaliados.clear();
     s.desvios++;
@@ -1906,6 +1916,7 @@ function concluirAlerta(s, a) {
   s.alerta = null;
   s.t0 = performance.now();
   exibirAlerta(false);
+  atualizarChuvaDemo(s, s.t0);
   painel();
 }
 $('#a-seguir').onclick = () => {
