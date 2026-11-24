@@ -1,0 +1,37 @@
+name: pAInel Sentinela BR - atualização automática
+on:
+  schedule:
+    - cron: "0 11,17,21 * * *"   # 08h, 14h e 18h em Brasília (UTC-3)
+    - cron: "30 * * * *"         # monitor de alertas climáticos do INMET, de hora em hora
+  workflow_dispatch: {}
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SENTINELA_BASE: /home/claude
+      ALERTA_WEBHOOK: ${{ secrets.ALERTA_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Bibliotecas do mapa e fontes
+        run: npm install --no-audit --no-fund && echo "SENTINELA_NODE_MODULES=$PWD/node_modules" >> $GITHUB_ENV
+      - name: Estrutura de pastas
+        run: |
+          sudo mkdir -p /home/claude && sudo chown -R $USER /home/claude
+          cp -r real sentinela_br /home/claude/
+          pip install -r sentinela_br/atualizacao/requirements.txt
+      - name: Atualização completa (8h, 14h, 18h)
+        if: github.event.schedule != '30 * * * *'
+        run: cd /home/claude/sentinela_br/atualizacao && python atualizar.py
+      - name: Só monitor de alertas (de hora em hora)
+        if: github.event.schedule == '30 * * * *'
+        run: cd /home/claude/sentinela_br/atualizacao && python monitor_alertas.py
+      - name: Publicar o painel (GitHub Pages)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: /home/claude/sentinela_br/p6/saida

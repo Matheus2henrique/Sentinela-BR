@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pAInel Sentinela BR · Ministério dos Transportes</title>
+<style>
+__FONTS__
+__LEAFLET_CSS__
+:root{--bg:#04060b;--bg2:#070b14;--card:rgba(13,20,33,.72);--ln:rgba(120,200,255,.13);--ln2:rgba(120,200,255,.26);--tx:#e6f1ff;--sub:#8aa0b8;--ci:#22d3ee;--ci2:#67e8f9;--mg:#e879f9;--vd:#34d399;--am:#fbbf24;--la:#fb923c;--vm:#f43f5e;--r:16px}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Overpass,system-ui,sans-serif;font-size:15px;line-height:1.45}
+body{background:radial-gradient(1200px 600px at 85% -10%,rgba(34,211,238,.10),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(232,121,249,.08),transparent 60%),var(--bg);min-height:100vh}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+a{color:var(--ci2)}
+/* topo */
+header{position:sticky;top:0;z-index:900;background:rgba(4,6,11,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--ln)}
+.barra{display:flex;align-items:center;gap:18px;padding:12px 24px}
+.marca{display:flex;align-items:center;gap:12px;min-width:0}
+.marca h1{margin:0;font-size:21px;font-weight:800;letter-spacing:.2px;white-space:nowrap}
+.marca h1 span{color:var(--ci);text-shadow:0 0 12px rgba(34,211,238,.9),0 0 28px rgba(34,211,238,.5)}
+.marca small{display:block;color:var(--sub);font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;white-space:nowrap}
+.olho{width:34px;height:34px;border-radius:10px;border:1px solid var(--ci);box-shadow:0 0 14px rgba(34,211,238,.6),inset 0 0 10px rgba(34,211,238,.35);display:grid;place-items:center;flex:none}
+.olho i{width:10px;height:10px;border-radius:50%;background:var(--ci);box-shadow:0 0 12px var(--ci)}
+.dir{margin-left:auto;display:flex;align-items:center;gap:10px}
+.selo{position:relative;display:flex;align-items:center;gap:8px;border:1px solid var(--ln2);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--sub);cursor:help;background:rgba(10,16,28,.8)}
+.selo svg{width:15px;height:15px;color:var(--vd);filter:drop-shadow(0 0 5px rgba(52,211,153,.8))}
+.selo b{color:var(--tx);font-weight:600}
+.dica{position:absolute;right:0;top:calc(100% + 10px);width:430px;max-height:70vh;overflow:auto;background:#0a1220;border:1px solid var(--ln2);border-radius:14px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 24px rgba(34,211,238,.12);color:var(--tx);font-size:12.5px;line-height:1.5;opacity:0;pointer-events:none;transform:translateY(-4px);transition:.15s;z-index:1000;cursor:default}
+.selo:hover .dica,.selo:focus-within .dica{opacity:1;pointer-events:auto;transform:none}
+.dica h4{margin:0 0 6px;font-size:13px;color:var(--ci2)}.dica ul{margin:0;padding-left:16px}.dica li{margin:3px 0}.dica p{margin:8px 0 0;color:var(--sub)}
+.sino{position:relative;width:36px;height:36px;border-radius:10px;border:1px solid var(--ln2);background:rgba(10,16,28,.8);cursor:pointer;display:grid;place-items:center}
+.sino svg{width:18px;height:18px;color:var(--am)}.sino b{position:absolute;top:-6px;right:-6px;background:var(--vm);color:#fff;font-size:10.5px;border-radius:999px;padding:1px 6px;box-shadow:0 0 10px var(--vm)}
+/* menu lateral */
+:root{--lw:236px}
+body.mini{--lw:76px}
+body{padding-left:var(--lw);transition:padding-left .2s}
+aside.lado{position:fixed;left:0;top:0;bottom:0;width:var(--lw);z-index:1000;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(6,10,19,.97),rgba(4,6,11,.97));border-right:1px solid var(--ln);box-shadow:8px 0 40px rgba(0,0,0,.35);transition:width .2s;overflow:hidden}
+aside.lado .marca{padding:18px 18px 14px;border-bottom:1px solid var(--ln)}
+aside.lado .marca h1{margin:0;font-size:22px;line-height:1.05;font-weight:800;white-space:nowrap}
+aside.lado .marca h1.h1b{font-size:15px;color:var(--sub);font-weight:700;letter-spacing:.3px}
+nav.abas{display:flex;flex-direction:column;gap:6px;padding:16px 12px;flex:1}
+nav.abas button{display:flex;align-items:center;gap:12px;background:none;border:1px solid transparent;border-radius:14px;padding:11px 12px;color:var(--sub);cursor:pointer;font-weight:600;font-size:14.5px;text-align:left;white-space:nowrap;position:relative;transition:.15s}
+nav.abas button svg{width:24px;height:24px;flex:none;transition:.15s}
+nav.abas button:hover{color:var(--tx);background:rgba(255,255,255,.03)}
+nav.abas button:hover svg{color:var(--ci2);filter:drop-shadow(0 0 6px rgba(34,211,238,.7))}
+nav.abas button[aria-selected=true]{color:var(--tx);border-color:rgba(34,211,238,.35);background:linear-gradient(90deg,rgba(34,211,238,.16),rgba(232,121,249,.06));box-shadow:0 0 22px rgba(34,211,238,.18),inset 0 0 12px rgba(34,211,238,.08)}
+nav.abas button[aria-selected=true] svg{color:var(--ci);filter:drop-shadow(0 0 8px rgba(34,211,238,.9))}
+nav.abas button[aria-selected=true]::before{content:'';position:absolute;left:-13px;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--ci);box-shadow:0 0 12px var(--ci)}
+aside.lado .pe{display:flex;align-items:center;gap:8px;padding:14px 16px;border-top:1px solid var(--ln);font-size:12px;color:var(--sub)}
+aside.lado .pe b{display:block;color:var(--tx);font-size:12px;white-space:nowrap}.aside.lado .pe small{white-space:nowrap}
+.recolher{margin-left:auto;width:32px;height:32px;border-radius:10px;border:1px solid var(--ln2);background:rgba(10,16,28,.8);color:var(--sub);cursor:pointer;display:grid;place-items:center;flex:none}
+.recolher svg{width:16px;height:16px;transition:transform .2s}
+body.mini .recolher svg{transform:rotate(180deg)}
+body.mini aside.lado .mtxt,body.mini nav.abas button span{display:none}
+body.mini nav.abas button{justify-content:center;padding:12px 0}
+body.mini aside.lado .marca{padding:18px 0 14px;display:flex;justify-content:center}
+body.mini aside.lado .pe{justify-content:center;padding:14px 0}body.mini .recolher{margin:0}
+.titulo-vista{display:flex;align-items:center;gap:12px;min-width:0}
+.titulo-vista #tv-ico svg{width:28px;height:28px;color:var(--ci);filter:drop-shadow(0 0 8px rgba(34,211,238,.8))}
+.titulo-vista b{font-size:20px;font-weight:800;display:block;white-space:nowrap}
+.titulo-vista small{display:block;color:var(--sub);font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap}
+@media(max-width:1250px){body:not(.largo){--lw:76px}body:not(.largo) aside.lado .mtxt,body:not(.largo) nav.abas button span{display:none}body:not(.largo) nav.abas button{justify-content:center;padding:12px 0}body:not(.largo) aside.lado .marca{padding:18px 0 14px;display:flex;justify-content:center}body:not(.largo) aside.lado .pe{justify-content:center;padding:14px 0}}
+/* filtros */
+.filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 24px 12px}
+.filtros select,.filtros input[type=search],main select{background:rgba(10,16,28,.9);border:1px solid var(--ln);border-radius:10px;padding:7px 10px;font-size:13.5px;max-width:230px}
+#f-rec{max-width:300px!important}
+.filtros select:focus,.filtros input:focus{outline:none;border-color:var(--ci);box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+.filtros .on{border-color:var(--ci);color:var(--ci2)}
+.tg{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);border:1px solid var(--ln);border-radius:10px;padding:6px 10px;cursor:pointer;user-select:none}
+.tg input{accent-color:var(--ci)}
+.limpar{display:flex;align-items:center;gap:6px;background:linear-gradient(90deg,rgba(244,63,94,.15),rgba(232,121,249,.12));border:1px solid rgba(244,63,94,.45);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;color:#fecdd3}
+.limpar:hover{box-shadow:0 0 14px rgba(244,63,94,.35)}
+.resumoF{font-size:12.5px;color:var(--sub);margin-left:4px}
+main{padding:22px 24px 40px;max-width:1680px;margin:0 auto}
+.view{display:none}.view.on{display:block;animation:ent .35s ease}
+@keyframes ent{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{font-size:19px;margin:0 0 4px}h3{font-size:15px;margin:0 0 8px}
+.sub{color:var(--sub);font-size:13.5px;margin:0}
+.fonte{display:inline-block;font-size:10.5px;letter-spacing:.9px;text-transform:uppercase;color:var(--ci2);border:1px solid var(--ln2);border-radius:999px;padding:2px 8px}
+.fonte.est{color:#f5d0fe;border-color:rgba(232,121,249,.4)}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:var(--r);padding:18px;backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.grade{display:grid;gap:16px}
+.k4{grid-template-columns:repeat(4,minmax(0,1fr))}.k3{grid-template-columns:repeat(3,minmax(0,1fr))}.k2{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.kpi{position:relative;overflow:hidden}
+.kpi b{display:block;font-size:34px;font-weight:800;line-height:1.1;margin:4px 0 2px;font-family:'JetBrains Mono',monospace}
+.kpi span{color:var(--sub);font-size:13px}
+.kpi::after{content:"";position:absolute;inset:auto -30% -60% auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,var(--g,rgba(34,211,238,.18)),transparent 65%)}
+.n-ci{color:var(--ci);text-shadow:0 0 14px rgba(34,211,238,.6)}.n-vm{color:#fb7185;text-shadow:0 0 14px rgba(244,63,94,.6)}.n-vd{color:var(--vd);text-shadow:0 0 14px rgba(52,211,153,.6)}.n-mg{color:#f0abfc;text-shadow:0 0 14px rgba(232,121,249,.6)}.n-am{color:var(--am);text-shadow:0 0 14px rgba(251,191,36,.5)}
+.bloco{margin-top:16px}
+.ia{border:1px solid rgba(232,121,249,.35);background:linear-gradient(135deg,rgba(232,121,249,.08),rgba(34,211,238,.05));}
+.ia ul{margin:8px 0 0;padding:0;list-style:none}
+.ia li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--ln);font-size:14px}
+.ia li:first-child{border-top:0}
+.ia li i{flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800;background:rgba(232,121,249,.16);color:#f5d0fe}
+.tit-ia{display:flex;align-items:center;gap:10px}
+.pulso{width:10px;height:10px;border-radius:50%;background:var(--mg);box-shadow:0 0 0 0 rgba(232,121,249,.7);animation:pul 1.8s infinite}
+@keyframes pul{0%{box-shadow:0 0 0 0 rgba(232,121,249,.7)}70%{box-shadow:0 0 0 10px rgba(232,121,249,0)}100%{box-shadow:0 0 0 0 rgba(232,121,249,0)}}
+.btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,#0891b2,#7c3aed);border:0;border-radius:11px;padding:9px 15px;font-weight:700;cursor:pointer;color:#fff;box-shadow:0 0 18px rgba(34,211,238,.25)}
+.btn:hover{filter:brightness(1.12)}
+.seg{display:inline-flex;border:1px solid var(--ln2);border-radius:10px;overflow:hidden;height:34px}.seg button{background:transparent;border:0;color:var(--sub);padding:0 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}.seg button.on{background:rgba(34,211,238,.14);color:var(--ci2)}
+.kpis2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}.kpis2>div{border:1px solid var(--ln2);border-radius:12px;padding:10px 14px;background:rgba(8,14,26,.6)}.kpis2 b{font-size:22px;display:block}.kpis2 span{font-size:12.5px;color:var(--sub)}
+.btn.sec{background:rgba(10,16,28,.9);border:1px solid var(--ln2);box-shadow:none;color:var(--ci2)}
+.parecer{margin-top:12px;white-space:pre-wrap;font-size:14px;line-height:1.55;border-left:2px solid var(--mg);padding:4px 0 4px 12px}
+#mapa{height:520px;border-radius:14px;background:#05080f;border:1px solid var(--ln)}
+.leaflet-container{background:#05080f;font-family:Overpass,sans-serif}
+.leaflet-tooltip{background:#0a1220;color:var(--tx);border:1px solid var(--ln2);box-shadow:0 0 12px rgba(34,211,238,.2)}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--sub);margin-top:8px}.leg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+/* tabelas */
+.tab{width:100%;border-collapse:collapse;font-size:13.5px}
+.tab th{text-align:left;font-size:11px;letter-spacing:.9px;text-transform:uppercase;color:var(--sub);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--ln2);position:sticky;top:0;background:#070c16;z-index:1}
+.tab td{padding:9px 10px;border-bottom:1px solid var(--ln);vertical-align:top}
+.tab tr.cl{cursor:pointer}.tab tr.cl:hover td{background:rgba(34,211,238,.05)}
+.tab .n{text-align:right}
+.pos{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ci)}
+.niv{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.8px;border-radius:6px;padding:2px 7px}
+.rol{max-height:640px;overflow:auto;border-radius:12px;border:1px solid var(--ln)}
+.top30{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tc{position:relative;border:1px solid var(--ln);border-radius:14px;padding:14px 14px 12px;background:rgba(10,16,28,.7);cursor:pointer;transition:.15s}
+.tc:hover{border-color:var(--ci);box-shadow:0 0 18px rgba(34,211,238,.18);transform:translateY(-2px)}
+.tc .p{position:absolute;top:10px;right:12px;font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;color:rgba(34,211,238,.35)}
+.tc b{font-size:15px}.tc .l{font-size:12.5px;color:var(--sub);margin:2px 0 8px}
+.tc .m{display:flex;gap:14px;font-size:12.5px;color:var(--sub)}.tc .m strong{color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:14px}
+.tc .a{margin-top:8px;font-size:12.5px;color:#a5f3fc}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:12px;border:1px solid var(--ln2);border-radius:999px;padding:3px 9px;color:var(--sub)}
+/* tese */
+.tese-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:26px;align-items:center;padding:26px 28px;background:radial-gradient(120% 140% at 0% 0%,rgba(232,121,249,.16),transparent 55%),radial-gradient(120% 140% at 100% 100%,rgba(34,211,238,.12),transparent 55%),var(--card)}
+.tese-num{font-family:'JetBrains Mono',monospace;font-size:96px;font-weight:800;line-height:.9;color:#f0abfc;text-shadow:0 0 30px rgba(232,121,249,.55)}
+.tese-num small{display:block;font-size:14px;font-weight:600;color:var(--sub);text-shadow:none;margin-top:10px;letter-spacing:.3px}
+.tese-hero h2{font-size:30px;line-height:1.2;margin:0}.tese-hero h2 em{font-style:normal;color:#f0abfc}
+.tese-hero p{color:var(--sub);font-size:14.5px;margin:10px 0 0;max-width:900px}
+.pilar{display:flex;flex-direction:column;gap:6px;border-top:3px solid var(--c)}
+.pilar .q{font-size:12px;font-weight:800;letter-spacing:1.6px;color:var(--c);text-transform:uppercase}
+.pilar .big{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:800;color:var(--tx);line-height:1.1}
+.pilar .lst{font-size:13.5px;line-height:1.55;margin:4px 0 0;padding:0;list-style:none}.pilar .lst li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--ln);padding:5px 0}.pilar .lst li b{font-family:'JetBrains Mono',monospace;white-space:nowrap}
+#mapa-tese{height:420px;border-radius:14px;background:#05080f;border:1px solid var(--ln)}
+.prova{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:4px}.prova>div{border:1px solid var(--ln2);border-radius:12px;padding:12px 14px;background:rgba(8,14,26,.6);font-size:13px;color:var(--sub)}.prova b{display:block;color:var(--tx);font-size:14px;margin-bottom:4px}
+@media(max-width:1100px){.tese-hero{grid-template-columns:1fr}.prova{grid-template-columns:1fr}}
+/* gaveta */
+#gaveta{position:fixed;top:0;right:0;width:min(560px,100%);height:100vh;background:#060a13;border-left:1px solid var(--ln2);box-shadow:-20px 0 60px rgba(0,0,0,.6);z-index:1200;transform:translateX(105%);transition:.25s;overflow:auto;padding:20px 22px 40px}
+#gaveta.on{transform:none}
+#gaveta .fechar{position:sticky;top:0;float:right;background:rgba(10,16,28,.95);border:1px solid var(--ln2);border-radius:10px;padding:6px 10px;cursor:pointer;z-index:2}
+.bar{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}.bar span:first-child{width:150px;color:var(--sub)}.bar .t{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden}.bar .t i{display:block;height:100%;border-radius:6px}.bar .v{width:58px;text-align:right;font-family:'JetBrains Mono',monospace}
+.acao{border:1px solid var(--ln);border-radius:12px;padding:11px 12px;margin-top:8px;background:rgba(10,16,28,.6)}
+.acao.best{border-color:rgba(52,211,153,.55);box-shadow:0 0 14px rgba(52,211,153,.15)}
+.acao .h{display:flex;justify-content:space-between;gap:10px}.acao .h b{font-size:14px}
+.acao .nums{display:flex;gap:16px;margin-top:6px;font-size:12.5px;color:var(--sub)}.acao .nums strong{color:var(--tx);font-family:'JetBrains Mono',monospace}
+.selo2{font-size:10.5px;font-weight:800;letter-spacing:.8px;color:#052e16;background:var(--vd);border-radius:6px;padding:2px 7px;height:fit-content}
+/* plano */
+.faixa{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+input[type=range]{accent-color:var(--ci);width:320px}
+.grande{font-size:28px;font-weight:800}
+/* alerta */
+#alerta{position:fixed;inset:0;background:rgba(2,4,8,.72);backdrop-filter:blur(4px);z-index:1500;display:grid;place-items:center;padding:20px}
+#alerta .cx{width:min(720px,100%);max-height:86vh;overflow:auto;background:#0a0f1a;border:1px solid rgba(251,191,36,.55);border-radius:18px;padding:22px;box-shadow:0 0 50px rgba(251,191,36,.18)}
+#alerta h2{color:var(--am);text-shadow:0 0 14px rgba(251,191,36,.5)}
+.al{border-top:1px solid var(--ln);padding:10px 0;font-size:13.5px}.al b{font-size:14px}
+.donos{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.dono{font-size:11.5px;border-radius:999px;padding:2px 9px;border:1px solid var(--ln2)}.dono.lid{border-color:rgba(251,191,36,.6);color:#fde68a;background:rgba(251,191,36,.08)}
+footer{border-top:1px solid var(--ln);padding:16px 24px;color:var(--sub);font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between}
+footer b{color:var(--tx)}
+.vazio{padding:30px;text-align:center;color:var(--sub)}
+.mais{display:block;margin:12px auto 0}
+@media(max-width:1100px){.k4{grid-template-columns:repeat(2,minmax(0,1fr))}.k2{grid-template-columns:minmax(0,1fr)}.top30{grid-template-columns:repeat(2,minmax(0,1fr))}.k3{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<aside class="lado" id="lado">
+ <div class="marca"><div class="olho" aria-hidden="true"><i></i></div><div class="mtxt"><h1>p<span>AI</span>nel</h1><h1 class="h1b">Sentinela BR</h1></div></div>
+ <nav class="abas" role="tablist" aria-orientation="vertical">
+   <button role="tab" data-v="tese" aria-selected="true" title="A tese em uma tela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V7"/><path d="M9 20v-8"/><path d="M14 20v-5"/><path d="M19 20v-3"/><path d="M3 20h18"/><path d="M4 5c4 0 8 3 15 9" stroke-dasharray="0"/></svg><span>A tese</span></button>
+  <button role="tab" data-v="visao" aria-selected="false" title="Visão IA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/><path d="M5 16l.6 1.4L7 18l-1.4.6L5 20l-.6-1.4L3 18l1.4-.6z"/></svg><span>Visão IA</span></button>
+   <button role="tab" data-v="ranking" aria-selected="false" title="Ranking de trechos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg><span>Ranking de trechos</span></button>
+   <button role="tab" data-v="plano" aria-selected="false" title="Plano de ação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3V1M21 12h2"/></svg><span>Plano de ação</span></button>
+   <button role="tab" data-v="clima" aria-selected="false" title="Clima e desastres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 17H7a5 5 0 1 1 1.6-9.7A6 6 0 0 1 20 10a3.5 3.5 0 0 1-2.5 7z"/><path d="M13 13l-2 4h3l-2 4"/></svg><span>Clima e desastres</span></button>
+   <button role="tab" data-v="fontes" aria-selected="false" title="Fontes e método"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Fontes e método</span></button>
+ </nav>
+ <div class="pe"><div class="mtxt"><b>Ministério dos Transportes</b><small>Equipe 4 · Innovathon 2026</small></div>
+  <button type="button" class="recolher" id="recolher" title="Recolher menu" aria-label="Recolher menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+</aside>
+<header>
+ <div class="barra">
+  <div class="titulo-vista"><span id="tv-ico" aria-hidden="true"></span><div><b id="tv-nome">A tese</b><small>pAInel Sentinela BR · BAI de segurança viária</small></div></div>
+  <div class="dir">
+   <button class="sino" type="button" id="abrir-alerta" title="Alertas climáticos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><b id="n-alerta">0</b></button>
+   <div class="selo" tabindex="0" aria-describedby="dica-fontes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg><span>Atualizado em <b id="dt-atual" class="mono"></b></span>
+    <div class="dica" id="dica-fontes" role="tooltip"><h4>Fontes deste painel</h4><ul id="lista-fontes"></ul><p>Atualização automática às 8h, 14h e 18h (horário de Brasília). Detalhes na aba Fontes e método.</p></div></div>
+  </div>
+ </div>
+ <div class="filtros" id="filtros">
+  <select id="f-uf" aria-label="Estado"><option value="">Todos os estados</option></select>
+  <select id="f-br" aria-label="Rodovia"><option value="">Todas as rodovias</option></select>
+  <select id="f-gestor" aria-label="Responsável"><option value="">Todos os responsáveis</option><option value="dnit">DNIT (administração direta)</option><option value="conc">Concessionárias federais (ANTT)</option></select>
+  <select id="f-mec" aria-label="Tipo de sinistro"><option value="">Todos os tipos de morte</option></select>
+  <select id="f-risco" aria-label="Risco"><option value="">Todos os níveis de risco</option><option value="3">Crítico</option><option value="2">Alto</option><option value="1">Médio</option><option value="0">Baixo</option></select>
+  <select id="f-icm" aria-label="Pavimento (ICM)" hidden><option value="">Pavimento: todos (ICM DNIT)</option><option value="0">Pavimento bom</option><option value="1">Pavimento regular</option><option value="2">Pavimento ruim</option><option value="3">Pavimento péssimo</option><option value="s">Sem ICM (trecho concedido ou sem levantamento)</option></select>
+  <select id="f-rec" aria-label="Recorte de atenção" title="Mostra só os trechos que pedem atenção especial. Passe o mouse em cada opção para ver o critério.">
+   <option value="">Atenção especial: nenhuma</option>
+   <option value="alta" title="Trechos com mais mortes em 2024–2025 do que na média de 2021–2023">Mortes subindo</option>
+   <option value="clima" title="Acidentes com chuva, neblina, fumaça ou deslizamento que se repetem na mesma época, em pelo menos 4 de 5 anos (PRF)">Acidente com chuva que se repete</option>
+   <option value="des" title="Município com enchente, deslizamento, vendaval ou incêndio em pelo menos 6 dos últimos 10 anos (Defesa Civil, Atlas de Desastres)">Cidade com desastre frequente</option>
+   <option value="ad" title="Município com risco alto ou muito alto de inundação, enxurrada e alagamento em 2050 (AdaptaBrasil/MCTI)">Cidade com risco de enchente em 2050</option>
+  </select>
+  <input type="search" id="f-q" placeholder="Município, BR ou km" aria-label="Buscar">
+  <button class="limpar" type="button" id="limpar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Limpar filtros</button>
+  <span class="resumoF mono" id="resumoF"></span>
+ </div>
+</header>
+<main>
+<!-- TESE -->
+<section class="view on" id="v-tese">
+ <div class="card tese-hero"><div class="tese-num" id="t-pct">50%<small id="t-pct-sub">das mortes</small></div>
+  <div><h2 id="t-frase"></h2><p id="t-base"></p></div></div>
+ <div class="grade k3 bloco">
+  <div class="card pilar" style="--c:#f0abfc"><span class="q">1 · Quais são</span><div class="big" id="t1-n"></div><span class="sub" id="t1-sub"></span><ul class="lst" id="t1-lst"></ul><button class="btn sec" type="button" style="margin-top:auto" onclick="irPara('ranking')">Ver o ranking completo →</button></div>
+  <div class="card pilar" style="--c:#34d399"><span class="q">2 · O que fazer</span><div class="big" id="t2-n"></div><span class="sub" id="t2-sub"></span><ul class="lst" id="t2-lst"></ul><button class="btn sec" type="button" style="margin-top:auto" onclick="irPara('plano')">Ver o plano de ação →</button></div>
+  <div class="card pilar" style="--c:#60a5fa"><span class="q">3 · Quem faz</span><div class="big" id="t3-n"></div><span class="sub" id="t3-sub"></span><ul class="lst" id="t3-lst"></ul><button class="btn sec" type="button" style="margin-top:auto" onclick="irPara('visao')">Ver no mapa por responsável →</button></div>
+ </div>
+ <div class="grade k2 bloco">
+  <div class="card"><h2>A curva da concentração</h2><p class="sub">Trechos de 5 km com morte, do que mais matou para o que menos matou, e a parcela acumulada das mortes. <span class="fonte">Real · PRF</span></p><div id="g-tese"></div>
+   <div class="leg"><span><i style="background:#e879f9"></i>Mortes 2021–2026</span><span><i style="background:#22d3ee"></i>Teste: escolhidos com 2021–2023, mortes de 2024–2026</span><span><i style="background:#475569"></i>Se as mortes fossem espalhadas por igual</span></div></div>
+  <div class="card"><h2>Onde ficam</h2><p class="sub" id="t-map-sub"></p><div id="mapa-tese"></div><div class="leg"><span><i style="background:#f43f5e"></i>Os 20% que concentram as mortes</span><span><i style="background:#334155"></i>Demais trechos com morte</span></div></div>
+ </div>
+ <div class="card bloco"><h2>Por que dá para confiar nesse número</h2><div class="prova" id="t-prova"></div></div>
+</section>
+<!-- VISÃO -->
+<section class="view" id="v-visao">
+ <div class="grade k4" id="kpis"></div>
+ <div class="grade k2 bloco">
+  <div class="card ia"><div class="tit-ia"><span class="pulso"></span><h2>O que fazer agora</h2></div><p class="sub">Leitura automática da série 2021–2026 com os filtros aplicados: projeção, prioridade, ação, custo e dono.</p><ul id="insights"></ul>
+   <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="button" id="ia-visao">✦ Gerar parecer executivo</button><button class="btn sec" type="button" onclick="irPara('plano')">Ver o plano de ação →</button></div><div class="parecer" id="par-visao" hidden></div></div>
+  <div class="card"><h2>Projeção: mortes nas rodovias federais</h2><p class="sub">Real até out/2026; 2026 completado pela sazonalidade; 2027–2030 pela tendência. <span class="fonte">Real · PRF</span> <span class="fonte est">Projeção · IA</span></p><div id="g-proj"></div><div class="leg"><span><i style="background:#fb7185"></i>Real</span><span><i style="background:#fbbf24"></i>Se nada mudar</span><span><i style="background:#34d399"></i>Com o plano recomendado</span></div></div>
+ </div>
+ <div class="grade k2 bloco">
+  <div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2>Mapa do risco e do responsável</h2><p class="sub" id="m-sub">Cada ponto é um trecho de 5 km com morte. Tamanho = risco. Clique para o detalhe.</p></div><div class="seg" role="group" aria-label="Cor do mapa"><button type="button" data-m="risco" class="on">Cor: risco</button><button type="button" data-m="dono">Cor: responsável</button><button type="button" data-m="icm" hidden>Cor: pavimento (ICM)</button><button type="button" data-m="adapta" hidden>Cor: inundação 2050</button></div></div><div id="mapa" class="bloco"></div><div class="leg" id="m-leg"></div></div>
+  <div class="grade">
+   <div class="card"><h2>Pnatrans: o Brasil está longe da meta</h2><p class="sub">Mortes por 100 mil habitantes, todas as vias. Meta 2030: metade de 2020. <span class="fonte">Real · SIM/MS e IBGE</span> <span class="fonte est">Projeção · IA</span></p><div id="g-pn"></div></div>
+   <div class="card"><h2>Por que se morre (Pareto)</h2><p class="sub">Quatro tipos de sinistro somam 85% das mortes; cada um tem uma medida que funciona. <span class="fonte">Real · PRF</span></p><div id="g-mec"></div></div>
+  </div>
+ </div>
+<div class="card bloco" id="icm-card" hidden><h2>Condição do pavimento (ICM do DNIT) × mortes</h2><p class="sub" id="icm-sub"></p>
+  <div class="kpis2" id="icm-kpi"></div><div id="icm-barras"></div></div>
+<div class="card bloco"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:end"><div><h2>Quem cuida de cada rodovia: DNIT × concessionárias</h2><p class="sub">Responsável de cada trecho pela base oficial da ANTT de trechos concedidos (km inicial e final). Fora desses intervalos, DNIT. Clique numa linha para filtrar o painel inteiro. <span class="fonte">Real · ANTT e PRF</span></p></div></div>
+  <div class="kpis2" id="o-kpi"></div>
+  <div class="rol bloco"><table class="tab"><thead><tr><th>Responsável</th><th>Rodovias e km sob responsabilidade</th><th class="n">Trechos com morte</th><th class="n">Mortes 2021–2026</th><th class="n">Esperadas/ano</th></tr></thead><tbody id="o-corpo"></tbody></table></div></div>
+</section>
+<!-- RANKING -->
+<section class="view" id="v-ranking">
+ <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><div><h2>Top 30 piores trechos</h2><p class="sub">Ordenados pelas mortes esperadas nos próximos 12 meses (série 2021–2026 com correção estatística). Clique para o detalhe com ações, custo e dono.</p></div>
+  <select id="r-ord" aria-label="Ordenar"><option value="esp">Ordenar: mortes esperadas (12 meses)</option><option value="m">Ordenar: mortes 2021–2026</option><option value="tend">Ordenar: maior alta recente</option><option value="vida">Ordenar: vidas salvas por R$ 1 milhão</option></select></div>
+ <div class="top30 bloco" id="top30"></div>
+ <div class="bloco card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h2>Todos os trechos com morte</h2><p class="sub" id="r-cont"></p></div></div>
+  <div class="rol bloco" id="rol"><table class="tab"><thead><tr><th>#</th><th>Trecho</th><th>Risco</th><th class="n">Mortes 21–26</th><th class="n">Esperadas 12m</th><th>Motivo principal (PRF)</th><th>Ação recomendada</th><th>Responsável</th></tr></thead><tbody id="r-corpo"></tbody></table></div></div>
+</section>
+<!-- PLANO -->
+<section class="view" id="v-plano">
+ <div class="card ia"><div class="tit-ia"><span class="pulso"></span><h2>Plano de ação recomendado</h2></div>
+  <p class="sub">Defina o orçamento e veja onde investir e o que fazer, com custo de referência do DNIT e eficácia publicada de cada medida. Dois critérios: atacar primeiro os trechos mais críticos com o pacote completo de obras, ou buscar o máximo de vidas por real.</p>
+  <div class="faixa bloco"><select id="modo" aria-label="Critério"><option value="custo">Critério: máximo de vidas por real investido</option><option value="pacote">Critério: trechos mais críticos primeiro, com pacote de obras</option></select><label for="orc" class="sub">Orçamento</label><input type="range" id="orc" min="50" max="5000" step="50" value="1000"><b class="grande mono n-ci" id="orc-v"></b></div>
+  <div class="grade k4 bloco" id="p-kpis"></div>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="button" id="ia-plano">✦ Parecer do plano</button><button class="btn sec" type="button" id="csv-plano">Baixar plano (CSV)</button></div><div class="parecer" id="par-plano" hidden></div>
+ </div>
+ <div class="grade k2 bloco"><div class="card"><h2>Por responsável</h2><p class="sub">Quem executa, quanto custa e quantas vidas salva por ano.</p><div id="p-dono"></div></div><div class="card"><h2>Por medida</h2><p class="sub">Medidas escolhidas, da mais custo-efetiva para a menos.</p><div id="p-med"></div></div></div>
+ <div class="card bloco"><h2>Ações selecionadas</h2><p class="sub" id="p-cont"></p><div class="rol bloco"><table class="tab"><thead><tr><th>#</th><th>Onde</th><th>O que fazer</th><th>Dono</th><th class="n">Custo</th><th class="n">Vidas/ano</th><th class="n">R$ por vida/ano</th></tr></thead><tbody id="p-corpo"></tbody></table></div></div>
+</section>
+<!-- CLIMA -->
+<section class="view" id="v-clima">
+ <div class="grade k4" id="c-kpis"></div>
+ <div class="grade k2 bloco"><div class="card"><h2>Calendário do risco climático</h2><p class="sub">Mortes em sinistros com chuva, neblina, fumaça, vento ou deslizamento, por mês (média 2021–2025). <span class="fonte">Real · PRF</span></p><div id="g-clima"></div></div>
+  <div class="card"><h2>Quem age em cada evento</h2><p class="sub">Responsável líder e órgãos que agem juntos, por tipo de evento.</p><div id="c-donos"></div></div></div>
+ <div class="card bloco"><h2>Trechos com risco climático recorrente</h2><p class="sub">Trechos onde sinistros com o mesmo tipo de evento se repetem na mesma época, em pelo menos 4 dos 5 anos completos. <span class="fonte">Cálculo sobre PRF</span></p>
+  <div class="rol bloco"><table class="tab"><thead><tr><th>Trecho</th><th>Época de risco</th><th>Evento</th><th class="n">Mortes 21–26</th><th>Responsáveis</th></tr></thead><tbody id="c-corpo"></tbody></table></div></div>
+ <div class="card bloco" id="d-card"><h2>Desastres oficiais nos municípios das rodovias</h2><p class="sub" id="d-sub"></p><div class="kpis2" id="d-kpi"></div>
+  <div class="grade k2"><div><h3 style="font-size:14px;margin:6px 0">Desastres que afetam rodovias, 2021–2025</h3><div id="d-cat"></div></div><div><h3 style="font-size:14px;margin:6px 0">Dupla evidência: sinistros climáticos (PRF) e desastre recorrente (Defesa Civil)</h3><p class="sub">Prioridade para drenagem, contenção de encosta e protocolo de interdição preventiva. Clique para o detalhe.</p></div></div>
+  <div class="rol bloco"><table class="tab"><thead><tr><th>Trecho</th><th>Desastres no município 2021–2025</th><th class="n">Anos com desastre (2016–2025)</th><th class="n">Mortes PRF 21–26</th><th>Responsável</th></tr></thead><tbody id="d-corpo"></tbody></table></div></div>
+ <div class="card bloco" id="a-card"><h2>Risco futuro: inundações, enxurradas e alagamentos em 2050</h2><p class="sub" id="a-sub"></p><div class="kpis2" id="a-kpi"></div>
+  <div class="grade k2"><div><h3 style="font-size:14px;margin:6px 0">Trechos e mortes por classe de risco do município</h3><div id="a-cls"></div></div><div><h3 style="font-size:14px;margin:6px 0">Ações de adaptação recomendadas</h3><div id="a-acoes"></div></div></div>
+  <h3 style="font-size:14px;margin:12px 0 4px">Prioridade máxima de adaptação: três evidências no mesmo trecho</h3><p class="sub">Sinistros climáticos recorrentes (PRF), desastre recorrente no município (Defesa Civil) e risco alto ou muito alto de inundação em 2050 (AdaptaBrasil). Clique para o detalhe.</p>
+  <div class="rol bloco"><table class="tab"><thead><tr><th>Trecho</th><th>Risco 2050</th><th class="n">Anos com desastre</th><th class="n">Mortes PRF 21–26</th><th>Quem age</th></tr></thead><tbody id="a-corpo"></tbody></table></div></div>
+</section>
+<!-- FONTES -->
+<section class="view" id="v-fontes">
+ <div class="card"><h2>Fontes</h2><p class="sub">Somente bases oficiais. O que ainda não entrou está marcado e o motivo é dado.</p><div class="rol bloco" style="max-height:none"><table class="tab"><thead><tr><th>Fonte</th><th>Órgão</th><th>Uso no painel</th><th>Situação</th><th>Acesso</th></tr></thead><tbody id="t-fontes"></tbody></table></div></div>
+ <div class="card bloco"><h2>Custos e eficácia das medidas</h2><p class="sub">Base das estimativas de orçamento e de vidas salvas. Valores de referência, sem BDI e sem projeto; confirmar no CMG/SICRO vigente antes de licitar.</p><div class="rol bloco" style="max-height:none"><table class="tab"><thead><tr><th>Medida</th><th>Quando se aplica</th><th>Custo por trecho de 5 km</th><th>Fonte do custo</th><th>Eficácia</th><th>Fonte da eficácia</th></tr></thead><tbody id="t-med"></tbody></table></div></div>
+ <div class="card bloco"><h2>Método</h2><div id="metodo" class="sub" style="font-size:14px;line-height:1.7"></div></div>
+</section>
+</main>
+<footer><span><b>pAInel Sentinela BR</b> · Ministério dos Transportes · Equipe 4 · Innovathon 2026</span><span>BAI: Business Artificial Intelligence. Dados oficiais; estimativas marcadas como tal.</span></footer>
+<aside id="gaveta" aria-label="Detalhe do trecho"><button class="fechar" type="button" onclick="fecharGaveta()">Fechar ✕</button><div id="g-corpo"></div></aside>
+<div id="alerta" hidden><div class="cx" role="dialog" aria-modal="true" aria-labelledby="al-tit"><div style="display:flex;justify-content:space-between;gap:12px"><div><span class="fonte" style="color:#fde68a;border-color:rgba(251,191,36,.5)">Alerta climático</span><h2 id="al-tit" style="margin-top:8px"></h2><p class="sub" id="al-sub"></p></div><button class="btn sec" type="button" onclick="document.getElementById('alerta').hidden=true">Fechar</button></div><div id="al-lista" class="bloco"></div></div></div>
+<script>__LEAFLET_JS__</script>
+<script type="application/json" id="dados">__DATA__</script>
+<script>
+'use strict';
+const D = JSON.parse(document.getElementById('dados').textContent), T = D.tr, N = T.br.length;
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const fmt = v => Math.round(v).toLocaleString('pt-BR'), f1 = v => v.toLocaleString('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+const rs = v => v >= 1e9 ? 'R$ ' + f1(v / 1e9) + ' bi' : v >= 1e6 ? 'R$ ' + f1(v / 1e6) + ' mi' : 'R$ ' + fmt(v / 1e3) + ' mil';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const br3 = b => 'BR-' + String(b).padStart(3, '0');
+const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const UFN = {AC: 'Acre', AL: 'Alagoas', AM: 'Amazonas', AP: 'Amapá', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MG: 'Minas Gerais', MS: 'Mato Grosso do Sul', MT: 'Mato Grosso', PA: 'Pará', PB: 'Paraíba', PE: 'Pernambuco', PI: 'Piauí', PR: 'Paraná', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RO: 'Rondônia', RR: 'Roraima', RS: 'Rio Grande do Sul', SC: 'Santa Catarina', SE: 'Sergipe', SP: 'São Paulo', TO: 'Tocantins'};
+const MEC = [{id: 'frontal', nome: 'Colisão frontal', cor: '#f43f5e'}, {id: 'saida', nome: 'Saída de pista e capotamento', cor: '#fb923c'}, {id: 'pedestre', nome: 'Atropelamento', cor: '#e879f9'}, {id: 'traseira', nome: 'Colisão traseira', cor: '#fbbf24'}, {id: 'intersecao', nome: 'Colisão em cruzamento', cor: '#22d3ee'}, {id: 'outros', nome: 'Outros', cor: '#64748b'}];
+const ANOS_OBS = 5 + 10 / 12;
+// ---------- medidas: custo de referência e eficácia publicada ----------
+const MED = [
+ {id: 'radar', nome: 'Fiscalização eletrônica de velocidade', curto: 'Radar fixo', mec: -1, efic: .20, custo: 4000 * 2 * 12 * 4, quando: 'Qualquer trecho com morte', custoTxt: 'R$ 4 mil por faixa monitorada ao mês × 2 faixas × 48 meses (2027–2030)', fCusto: 'DNIT – PNCV', fEf: 'FHWA: radares reduzem colisões de 20% a 54% (adotado o piso, 20%, sobre todas as mortes)', dono: 'vel'},
+ {id: 'barreira', nome: 'Barreira central de concreto', curto: 'Barreira central', mec: 0, efic: .77, custo: 5000 * 326.31, quando: 'Pista dupla com colisão frontal', custoTxt: '5.000 m × R$ 326,31/m (barreira New Jersey pré-moldada)', fCusto: 'SICRO abr/2026 (SP), cód. 3713822', fEf: 'Suécia (Trafikverket): −77% de mortes com separação física; FHWA: −97% de colisões que cruzam o canteiro', dono: 'gestor', cond: i => T.dupla[i] === 1},
+ {id: 'dois1', nome: 'Faixa adicional 2+1 com barreira central', curto: '2+1 com barreira', mec: 0, efic: .77, custo: 5 * 1950000 + 5000 * 326.31, quando: 'Pista simples com colisão frontal', custoTxt: '5 km × R$ 1,95 mi/km (terceira faixa, média) + barreira 5.000 m × R$ 326,31', fCusto: 'DNIT CMG mar/2015 (terceira faixa) + SICRO abr/2026', fEf: 'Suécia (Trafikverket): −77% de mortes nas vias 2+1', dono: 'gestor', cond: i => T.dupla[i] !== 1},
+ {id: 'defensa', nome: 'Defensa metálica e sonorizadores de borda', curto: 'Defensa + sonorizador', mec: 1, efic: .36, custo: 2000 * 851.99, quando: 'Trecho com saída de pista ou capotamento', custoTxt: '2.000 m de defensa maleável × R$ 851,99/m', fCusto: 'SICRO abr/2026 (SP), cód. 3713600', fEf: 'FHWA: sonorizadores de borda −36% de saídas de pista graves', dono: 'gestor'},
+ {id: 'travessia', nome: 'Travessia segura (passarela ou refúgio central com iluminação)', curto: 'Travessia segura', mec: 2, efic: .46, custo: 4800000, quando: 'Trecho com atropelamento', custoTxt: '1 passarela ≈ R$ 4,8 mi', fCusto: 'DER-DF, passarela na BR-020 (licitação nov/2026)', fEf: 'FHWA: canteiro e refúgio reduzem 46% dos atropelamentos', dono: 'ped'},
+ {id: 'rotatoria', nome: 'Rotatória ou interseção em desnível', curto: 'Interseção segura', mec: 4, efic: .78, custo: 17500000, quando: 'Trecho com colisão em cruzamento', custoTxt: 'Teto: viaduto ≈ R$ 17,5 mi (rotatória custa menos)', fCusto: 'DNIT, viaduto da BR-470/SC (2025)', fEf: 'FHWA: rotatória reduz 78% a 82% das colisões com vítima', dono: 'gestor'}];
+const CLIMA = [
+ {nome: 'Deslizamento e detritos', lider: 'Defesa Civil', com: ['Gestor da via', 'PRF', 'Cemaden e Serviço Geológico do Brasil (alerta)'], acao: 'Interdição preventiva quando houver alerta de chuva forte; contenção de encosta e drenagem.'},
+ {nome: 'Fumaça de queimadas', lider: 'Corpo de Bombeiros e Ibama/Prevfogo', com: ['PRF', 'Gestor da via', 'Defesa Civil'], acao: 'Combate ao fogo na faixa de domínio; controle de tráfego e comboio da PRF.'},
+ {nome: 'Neblina', lider: 'PRF', com: ['Gestor da via'], acao: 'Comboio e redução de velocidade; tachas refletivas e painel de mensagem.'},
+ {nome: 'Chuva e pista molhada', lider: 'Defesa Civil', com: ['PRF', 'Gestor da via'], acao: 'Aviso ao motorista, redução de velocidade, equipes de drenagem de prontidão.'},
+ {nome: 'Vento forte e granizo', lider: 'Defesa Civil', com: ['PRF', 'Gestor da via'], acao: 'Aviso ao motorista; atenção a caminhões, ônibus e motos.'}];
+const FONTES = [
+ ['Condições do Pavimento – ICM (série histórica)', 'DNIT – dados abertos', 'ICM por km, 2021 a out/2026: Bom, Regular, Ruim, Péssimo', 'Integrada', 'https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento'],
+ ['PRF – sinistros por ocorrência (jan/2021 a out/2026)', 'Polícia Rodoviária Federal', 'Base de cada trecho: mortes, tipo, causa, clima, hora', 'Integrada', 'https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf'],
+ ['SIM – óbitos por lesão de trânsito (CID-10 V01–V89), 2010–2025 (2025 preliminar)', 'Ministério da Saúde – Open Data SUS', 'Indicador oficial do Pnatrans; 2025 apurado do arquivo Mortalidade Geral 2025', 'Integrada (série nacional)', 'https://dadosabertos.saude.gov.br/dataset/sim'],
+ ['Estimativas de população 2024 e 2025', 'IBGE', 'Taxa por 100 mil habitantes (2025: 213.421.037)', 'Integrada', 'https://ftp.ibge.gov.br/Estimativas_de_Populacao/'],
+ ['Frota de veículos, dez/2024', 'Senatran', 'Taxa por 10 mil veículos', 'Integrada', 'https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-2024'],
+  ['Custos de referência (SICRO abr/2026, CMG, PNCV)', 'DNIT', 'Orçamento estimado das ações', 'Integrada', 'https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/custos-referenciais/custo-medio-gerencial'],
+ ['Eficácia de medidas (Proven Safety Countermeasures)', 'FHWA (EUA)', 'Vidas salvas estimadas', 'Integrada', 'https://highways.dot.gov/safety/proven-safety-countermeasures'],
+ ['Avaliação das vias 2+1', 'Trafikverket (Suécia)', 'Eficácia da separação de sentidos', 'Integrada', 'https://bransch.trafikverket.se/en/startpage/operations/Operations-road/vision-zero-academy/Key-interventions-based-on-Vision-Zero/median-barriers/'],
+ ['Atlas Digital de Desastres no Brasil (base S2iD 1991–2025, v1.1 ago/2026)', 'MIDR – Defesa Civil', 'Desastres reconhecidos e registrados por município: chuva, inundação, deslizamento, vento, incêndio', 'Integrada', 'https://atlasdigital.mdr.gov.br'],
+ ['AdaptaBrasil – inundações, enxurradas e alagamentos (indicador 60041), 2050, cenário pessimista', 'MCTI / INPE', 'Risco de impacto por município com a chuva intensa projetada', 'Integrada', 'https://adaptabrasil.mcti.gov.br'],
+ ['Trechos concedidos (km inicial e final), arquivo 8/2026', 'ANTT – dados abertos', 'Responsável de cada trecho: concessionária ou DNIT', 'Integrada', 'https://dados.antt.gov.br/dataset/trecho-concedido']
+];
+// ---------- derivados por trecho ----------
+const CONC = D.conc, eConc = i => T.conc[i] >= 0;
+const gestor = i => eConc(i) ? 'Concessionária ' + CONC[T.conc[i]] + ' (contrato federal, fiscalização ANTT)' : 'DNIT (administração direta)';
+const gestorCurto = i => eConc(i) ? CONC[T.conc[i]] : 'DNIT';
+const COR_DONO = {dnit: '#60a5fa', conc: '#e879f9'}, corDono = i => eConc(i) ? COR_DONO.conc : COR_DONO.dnit;
+const viaDono = (x, i) => x === 'Gestor da via' ? (eConc(i) ? CONC[T.conc[i]] + ' (ANTT)' : 'DNIT') : x;
+const nivel = i => T.esp[i] >= 2 ? 3 : T.esp[i] >= 1 ? 2 : T.esp[i] >= .4 ? 1 : 0;
+const NIV = [{t: 'Baixo', c: '#22d3ee'}, {t: 'Médio', c: '#fbbf24'}, {t: 'Alto', c: '#fb923c'}, {t: 'Crítico', c: '#f43f5e'}];
+const nome = i => `${br3(T.br[i])}/${T.uf[i]} · km ${T.km[i]}–${T.km[i] + 5}`;
+const mecPrin = i => { let k = 0; for (let j = 1; j < 6; j++) if (T.med[i][j] > T.med[i][k]) k = j; return k; };
+const donoMed = (m, i) => m.dono === 'gestor' ? gestorCurto(i) : m.dono === 'vel' ? (eConc(i) ? gestorCurto(i) + ' + PRF' : 'DNIT (PNCV) + PRF') : gestorCurto(i) + ' + ' + (T.uf[i] === 'DF' ? 'GDF' : 'prefeitura');
+function acoes(i) { const out = [];
+  for (const m of MED) { if (m.cond && !m.cond(i)) continue; const share = m.mec < 0 ? 1 : T.med[i][m.mec] / T.m[i]; if (share <= 0) continue;
+    const vidas = T.esp[i] * share * m.efic; if (vidas < .005) continue; out.push({m, i, vidas, custo: m.custo, rpv: m.custo / vidas}); }
+  return out.sort((a, b) => a.rpv - b.rpv); }
+const ACO = Array.from({length: N}, (_, i) => acoes(i));
+const principal = i => { const nr = ACO[i].filter(a => a.m.id !== 'radar').sort((a, b) => b.vidas - a.vidas); return nr[0] || ACO[i][0]; };
+const vidaPorMi = i => ACO[i].length ? ACO[i][0].vidas / (ACO[i][0].custo / 1e6) : 0;
+// ---------- filtros globais ----------
+const F0 = {uf: '', br: '', gestor: '', mec: '', risco: '', icm: '', clima: false, des: false, ad: false, alta: false, q: ''};
+const AD = D.adapta || null, adC = i => AD ? AD.c[i] : -1, adAlto = i => adC(i) >= 3, CORAD = ['#34d399', '#a3e635', '#fbbf24', '#fb923c', '#f43f5e'];
+const AT = D.atlas || null, desRec = i => AT && AT.za[i] >= 6, duplo = i => desRec(i) && T.cj[i] >= 0;
+const ICM = D.icm || null, CORICM = ['#34d399', '#fbbf24', '#fb923c', '#f43f5e'], NOMEICM = ['Bom', 'Regular', 'Ruim', 'Péssimo'];
+const icmV = i => ICM ? ICM.icm[i] : -1, icmC = i => { const v = icmV(i); return v < 0 ? -1 : v < 30 ? 0 : v < 50 ? 1 : v < 70 ? 2 : 3; };
+let F = {...F0}, LS = [];
+function passa(i) {
+  if (F.uf && T.uf[i] !== F.uf) return false; if (F.br && T.br[i] !== +F.br) return false;
+  if (F.gestor === 'dnit' && eConc(i)) return false; if (F.gestor === 'conc' && !eConc(i)) return false;
+  if (F.gestor.startsWith('c:') && T.conc[i] !== +F.gestor.slice(2)) return false;
+  if (F.mec !== '' && mecPrin(i) !== +F.mec) return false; if (F.risco !== '' && nivel(i) !== +F.risco) return false;
+  if (F.icm !== '' && (F.icm === 's' ? icmC(i) >= 0 : icmC(i) !== +F.icm)) return false;
+  if (F.clima && T.cj[i] < 0) return false; if (F.des && !desRec(i)) return false; if (F.ad && !adAlto(i)) return false; if (F.alta && T.tend[i] < 1) return false;
+  if (F.q) { const q = F.q.toLowerCase().replace('br-', '').replace('br', '').trim(), s = `${br3(T.br[i])} ${T.br[i]} ${T.uf[i]} ${T.mun[i]} km ${T.km[i]}`.toLowerCase(); if (!s.includes(q)) return false; }
+  return true; }
+function aplicar() {
+  LS = []; for (let i = 0; i < N; i++) if (passa(i)) LS.push(i);
+  $$('#filtros select').forEach(s => s.classList.toggle('on', !!s.value)); $('#f-q').classList.toggle('on', !!F.q);
+  const ativos = Object.keys(F).filter(k => F[k] !== F0[k]).length;
+  $('#resumoF').textContent = `${fmt(LS.length)} trechos${ativos ? ` · ${ativos} filtro${ativos > 1 ? 's' : ''}` : ''}`;
+  desenharTudo(); }
+function ligarFiltros() {
+  const ufs = [...new Set(T.uf)].sort(); $('#f-uf').insertAdjacentHTML('beforeend', ufs.map(u => `<option value="${u}">${UFN[u] || u}</option>`).join(''));
+  const brs = [...new Set(T.br)].sort((a, b) => a - b); $('#f-br').insertAdjacentHTML('beforeend', brs.map(b => `<option value="${b}">${br3(b)}</option>`).join(''));
+  $('#f-gestor').insertAdjacentHTML('beforeend', '<optgroup label="Concessionárias (contratos federais)">' + CONC.map((c, k) => `<option value="c:${k}">${esc(c)}</option>`).join('') + '</optgroup>');
+  $$('.seg button').forEach(b => b.addEventListener('click', () => { modoMapa = b.dataset.m; $$('.seg button').forEach(x => x.classList.toggle('on', x === b)); desenharMapa(); }));
+  $('#f-mec').insertAdjacentHTML('beforeend', MEC.map((m, k) => `<option value="${k}">${m.nome}</option>`).join(''));
+  const map = {uf: 'f-uf', br: 'f-br', gestor: 'f-gestor', mec: 'f-mec', risco: 'f-risco', icm: 'f-icm'};
+  if (AD) $('.seg button[data-m=adapta]').hidden = false; else { $('#f-rec option[value=ad]').remove(); $('#a-card').hidden = true; }
+  if (ICM) { $('#f-icm').hidden = false; $('.seg button[data-m=icm]').hidden = false; $('#icm-card').hidden = false; }
+  for (const [k, id] of Object.entries(map)) $('#' + id).addEventListener('change', e => { F[k] = e.target.value; aplicar(); });
+  $('#f-rec').addEventListener('change', e => { const v = e.target.value; F.clima = v === 'clima'; F.des = v === 'des'; F.ad = v === 'ad'; F.alta = v === 'alta'; aplicar(); });
+  let tq; $('#f-q').addEventListener('input', e => { clearTimeout(tq); tq = setTimeout(() => { F.q = e.target.value.trim(); aplicar(); }, 250); });
+  $('#limpar').addEventListener('click', () => { F = {...F0}; for (const id of Object.values(map)) $('#' + id).value = ''; $('#f-rec').value = ''; $('#f-q').value = ''; aplicar(); }); }
+// ---------- navegação ----------
+let vista = 'tese';
+function irPara(v) { vista = v; $$('nav.abas button').forEach(b => b.setAttribute('aria-selected', b.dataset.v === v)); { const b = $(`nav.abas button[data-v=${v}]`); $('#tv-nome').textContent = b.querySelector('span').textContent; $('#tv-ico').innerHTML = b.querySelector('svg').outerHTML; } $$('.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v)); desenharVista(); if (v === 'visao' && mapa) setTimeout(() => mapa.invalidateSize(), 50); if (v === 'tese' && mapaT) setTimeout(() => mapaT.invalidateSize(), 50); window.scrollTo({top: 0}); }
+function desenharTudo() { desenharVista(); }
+function desenharVista() { ({tese: desenharTese, visao: desenharVisao, ranking: desenharRanking, plano: desenharPlano, clima: desenharClima, fontes: () => {}})[vista](); }
+// ---------- gráficos ----------
+function linha({xs, series, h = 230, yfmt = fmt, yMin = 0, yMax}) {
+  const W = 640, H = h, pl = 46, pr = 14, pt = 14, pb = 26, all = series.flatMap(s => s.v.filter(v => v != null));
+  const mx = yMax || Math.max(...all) * 1.12, mn = yMin, X = k => pl + k * (W - pl - pr) / (xs.length - 1), Y = v => pt + (1 - (v - mn) / (mx - mn)) * (H - pt - pb);
+  let g = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">`;
+  for (let k = 0; k <= 4; k++) { const v = mn + (mx - mn) * k / 4; g += `<line x1="${pl}" x2="${W - pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(120,200,255,.10)"/><text x="${pl - 8}" y="${Y(v) + 4}" fill="#8aa0b8" font-size="11" text-anchor="end" font-family="JetBrains Mono">${yfmt(v)}</text>`; }
+  xs.forEach((x, k) => { if (xs.length < 18 || k % 2 === 0) g += `<text x="${X(k)}" y="${H - 6}" fill="#8aa0b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono">${x}</text>`; });
+  for (const s of series) { const pts = s.v.map((v, k) => v == null ? null : [X(k), Y(v)]); let d = '', on = false; pts.forEach(p => { if (!p) { on = false; return; } d += (on ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); on = true; });
+    g += `<path d="${d}" fill="none" stroke="${s.c}" stroke-width="${s.w || 2.6}" ${s.dash ? 'stroke-dasharray="6 5"' : ''} style="filter:drop-shadow(0 0 6px ${s.c})"/>`;
+    pts.forEach((p, k) => { if (p && s.pts !== false) g += `<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="#04060b" stroke="${s.c}" stroke-width="2"><title>${xs[k]}: ${yfmt(s.v[k])}</title></circle>`; });
+    if (s.rot) { const k = s.v.length - 1 - [...s.v].reverse().findIndex(v => v != null); g += `<text x="${X(k) - 4}" y="${Y(s.v[k]) - 9}" fill="${s.c}" font-size="11.5" text-anchor="end" font-weight="700">${s.rot}</text>`; } }
+  return g + '</svg>'; }
+function barras(itens, {cor = '#22d3ee', fmtv = fmt, larg = 150} = {}) { const mx = Math.max(1, ...itens.map(x => x[1]));
+  return itens.map(([n, v, c, extra]) => `<div class="bar"><span style="width:${larg}px">${n}</span><span class="t"><i style="width:${(v / mx * 100).toFixed(1)}%;background:${c || cor};box-shadow:0 0 8px ${c || cor}"></i></span><span class="v">${fmtv(v)}</span>${extra ? `<span class="sub" style="width:170px;font-size:12px">${extra}</span>` : ''}</div>`).join(''); }
+// ---------- plano (otimização) ----------
+function montarPlano(orc, lista = LS, modo = modoPlano()) {
+  const esc_ = [], usado = new Map(); let gasto = 0, vidas = 0;
+  if (modo === 'pacote') {  // trechos mais críticos primeiro, com o pacote completo de medidas
+    const ord = [...lista].sort((a, b) => T.esp[b] - T.esp[a]);
+    for (const i of ord) { const pac = ACO[i].filter(a => a.vidas >= .05 && a.rpv <= 20e6).sort((a, b) => b.vidas - a.vidas); if (!pac.length) continue;
+      const c = pac.reduce((s, a) => s + a.custo, 0); if (gasto + c > orc) { if (gasto > orc * .97) break; continue; }
+      let rem = T.esp[i]; for (const a of pac) { const v = rem * (a.vidas / T.esp[i]); rem -= v; esc_.push({...a, vidas: v}); vidas += v; }
+      usado.set(i, 1); gasto += c; }
+    esc_.sort((a, b) => T.esp[b.i] - T.esp[a.i] || b.vidas - a.vidas);
+    return {acoes: esc_, gasto, vidas, trechos: usado.size}; }
+  const cand = []; for (const i of lista) for (const a of ACO[i]) cand.push(a);
+  cand.sort((a, b) => a.rpv - b.rpv);
+  for (const a of cand) { if (gasto + a.custo > orc) continue; const ja = usado.get(a.i) || 0, resto = Math.max(0, T.esp[a.i] - ja); const v = Math.min(a.vidas, resto * a.m.efic + 1e-9); if (v < .005) continue;
+    esc_.push({...a, vidas: v}); usado.set(a.i, ja + v); gasto += a.custo; vidas += v; if (gasto >= orc * .999) break; }
+  return {acoes: esc_, gasto, vidas, trechos: usado.size}; }
+const modoPlano = () => $('#modo')?.value || 'custo';
+// ---------- projeção ----------
+function serieFiltrada(lista = LS) { const a = [0, 0, 0, 0, 0, 0]; for (const i of lista) for (let k = 0; k < 6; k++) a[k] += T.ano[i][k]; return a; }
+function projetar(lista = LS, vidasPlano = 0) {
+  const s = serieFiltrada(lista), p26 = s[5] / D.nac.fracJanOut, y = [s[0], s[1], s[2], s[3], s[4], p26], x = [0, 1, 2, 3, 4, 5];
+  const mx = x.reduce((a, b) => a + b) / 6, my = y.reduce((a, b) => a + b) / 6; let num = 0, den = 0; x.forEach((v, k) => { num += (v - mx) * (y[k] - my); den += (v - mx) ** 2; });
+  const b = num / den, a = my - b * mx, tend = [6, 7, 8, 9].map(k => Math.max(0, a + b * k));
+  const plano = tend.map((v, k) => Math.max(0, v - vidasPlano * (k === 0 ? .5 : 1)));
+  return {s, p26, tend, plano, b}; }
+// ---------- A TESE ----------
+let mapaT, camadaT;
+function top20(lista = LS) { const o = [...lista].sort((a, b) => T.m[b] - T.m[a] || T.esp[b] - T.esp[a]); return o.slice(0, Math.max(1, Math.round(o.length * .2))); }
+function desenharTese() {
+  const tot = LS.reduce((a, i) => a + T.m[i], 0);
+  if (!LS.length || !tot) { $('#t-frase').textContent = 'Nenhum trecho com morte nos filtros atuais.'; return; }
+  const S = top20(), mS = S.reduce((a, i) => a + T.m[i], 0), pc = Math.round(mS / tot * 100), esc_ = Object.keys(F).some(k => F[k] !== F0[k]) ? escopo() : '';
+  const metade = pc >= 49 && pc <= 51 ? 'Metade' : pc >= 45 && pc < 49 ? 'Quase metade' : pc + '%', sing = pc >= 45 && pc <= 51;
+  $('#t-pct').firstChild.textContent = pc + '%'; $('#t-pct-sub').textContent = `das mortes em 20% dos trechos`;
+  $('#t-frase').innerHTML = `${metade} das mortes ${sing ? 'está' : 'estão'} em <em>20% dos trechos</em>${esc_ ? ` (${esc(esc_)})` : ''}. Sabemos quais são, o que fazer e quem faz.`;
+  $('#t-base').innerHTML = `${fmt(tot)} mortes registradas pela PRF de jan/2021 a out/2026 em ${fmt(LS.length)} trechos de 5 km onde houve ao menos uma morte. Os ${fmt(S.length)} trechos que mais mataram (${fmt(S.length * 5)} km) somam ${fmt(mS)} mortes. Tratar esses trechos primeiro é onde cada real salva mais vidas.`;
+  // 1 · quais são
+  const porBR = new Map(); for (const i of S) { const k = br3(T.br[i]); porBR.set(k, (porBR.get(k) || 0) + T.m[i]); }
+  const ufs = new Set(S.map(i => T.uf[i])), crit = S.filter(i => nivel(i) >= 2).length;
+  $('#t1-n').textContent = fmt(S.length) + ' trechos'; $('#t1-sub').textContent = `${fmt(S.length * 5)} km em ${porBR.size} rodovias e ${ufs.size} UF · ${fmt(crit)} com risco alto ou crítico para os próximos 12 meses`;
+  $('#t1-lst').innerHTML = [...porBR.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([b, v]) => `<li><span>${b}</span><b>${fmt(v)} mortes</b></li>`).join('');
+  // 2 · o que fazer
+  const mec = MEC.map((m, k) => [k, S.reduce((a, i) => a + T.med[i][k], 0)]).filter(x => x[0] !== 5).sort((a, b) => b[1] - a[1]);
+  const medDe = k => k === 0 ? 'barreira central ou 2+1' : (MED.find(x => x.mec === k)?.curto || 'fiscalização').toLowerCase();
+  const P = montarPlano(orcamento() * 1e6, S);
+  $('#t2-n').textContent = fmt(P.vidas) + ' vidas/ano'; $('#t2-sub').textContent = `com ${rs(P.gasto)} aplicados em ${fmt(P.trechos)} desses trechos (orçamento do Plano de ação; custo DNIT, eficácia FHWA e Trafikverket). Radar de velocidade é o ganho rápido; a obra certa depende de como se morre:`;
+  $('#t2-lst').innerHTML = mec.slice(0, 4).map(([k, v]) => `<li><span>${MEC[k].nome} · ${Math.round(v / mS * 100)}%</span><b>${medDe(k)}</b></li>`).join('');
+  // 3 · quem faz
+  const dn = S.filter(i => !eConc(i)), cs = S.filter(eConc), mD = dn.reduce((a, i) => a + T.m[i], 0), cc = new Map();
+  for (const i of cs) cc.set(T.conc[i], (cc.get(T.conc[i]) || 0) + T.m[i]);
+  const clim = S.filter(i => T.cj[i] >= 0).length;
+  $('#t3-n').textContent = (dn.length ? 1 : 0) + cc.size + ' responsáveis'; $('#t3-sub').textContent = `Cada trecho tem um dono pela base de concessões da ANTT. PRF fiscaliza a velocidade em todos; Defesa Civil entra nos ${fmt(clim)} com sinistro climático recorrente.`;
+  $('#t3-lst').innerHTML = `<li><span style="color:${COR_DONO.dnit}">● DNIT · ${fmt(dn.length)} trechos</span><b>${Math.round(mD / mS * 100)}% das mortes</b></li>` + (cs.length ? `<li><span style="color:${COR_DONO.conc}">● ${cc.size} concessionárias (ANTT) · ${fmt(cs.length)} trechos</span><b>${Math.round((mS - mD) / mS * 100)}%</b></li>` : '')
+    + [...cc.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `<li><span class="sub">↳ ${esc(CONC[k])}</span><b>${fmt(v)} mortes</b></li>`).join('');
+  // curva
+  const ord = [...LS].sort((a, b) => T.m[b] - T.m[a]), n = ord.length, cum = [0]; let ac = 0; for (const i of ord) { ac += T.m[i]; cum.push(ac / tot); }
+  const a3 = i => T.ano[i][0] + T.ano[i][1] + T.ano[i][2], b3 = i => T.ano[i][3] + T.ano[i][4] + T.ano[i][5];
+  const ord2 = [...LS].sort((a, b) => a3(b) - a3(a) || 0), tb = ord2.reduce((a, i) => a + b3(i), 0), cum2 = [0]; ac = 0; for (const i of ord2) { ac += b3(i); cum2.push(tb ? ac / tb : 0); }
+  const W = 640, H = 310, pl = 46, pr = 14, pt = 14, pb = 44, X = f => pl + f * (W - pl - pr), Y = f => pt + (1 - f) * (H - pt - pb);
+  const pth = c => { let d = ''; const st = Math.max(1, Math.floor(n / 300)); for (let k = 0; k <= n; k += st) d += (d ? 'L' : 'M') + X(k / n).toFixed(1) + ' ' + Y(c[k]).toFixed(1); return d + 'L' + X(1) + ' ' + Y(c[n]); };
+  const k20 = S.length, y20 = cum[k20], y20b = cum2[k20];
+  let g = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">`;
+  for (let k = 0; k <= 4; k++) g += `<line x1="${pl}" x2="${W - pr}" y1="${Y(k / 4)}" y2="${Y(k / 4)}" stroke="rgba(120,200,255,.10)"/><text x="${pl - 8}" y="${Y(k / 4) + 4}" fill="#8aa0b8" font-size="11" text-anchor="end" font-family="JetBrains Mono">${k * 25}%</text>`;
+  for (let k = 0; k <= 5; k++) g += `<text x="${X(k / 5)}" y="${H - 26}" fill="#8aa0b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono">${k * 20}%</text>`;
+  g += `<text x="${X(.5)}" y="${H - 6}" fill="#8aa0b8" font-size="10.5" text-anchor="middle">trechos, do que mais matou ao que menos matou</text>`;
+  g += `<path d="M${X(0)} ${Y(0)}L${X(1)} ${Y(1)}" stroke="#475569" stroke-dasharray="5 5" stroke-width="1.5"/>`;
+  g += `<rect x="${X(0)}" y="${pt}" width="${X(.2) - X(0)}" height="${H - pt - pb}" fill="rgba(244,63,94,.07)"/><line x1="${X(.2)}" x2="${X(.2)}" y1="${pt}" y2="${H - pb}" stroke="#f43f5e" stroke-dasharray="4 4"/>`;
+  g += `<path d="${pth(cum2)}" fill="none" stroke="#22d3ee" stroke-width="2.2" stroke-dasharray="7 5" style="filter:drop-shadow(0 0 5px #22d3ee)"/>`;
+  g += `<path d="${pth(cum)}" fill="none" stroke="#e879f9" stroke-width="3" style="filter:drop-shadow(0 0 7px #e879f9)"/>`;
+  g += `<circle cx="${X(.2)}" cy="${Y(y20)}" r="5" fill="#04060b" stroke="#e879f9" stroke-width="2.5"/><text x="${X(.2) + 10}" y="${Y(y20) + 4}" fill="#f0abfc" font-size="13" font-weight="800">20% dos trechos → ${Math.round(y20 * 100)}% das mortes</text>`;
+  g += `<circle cx="${X(.2)}" cy="${Y(y20b)}" r="4" fill="#04060b" stroke="#22d3ee" stroke-width="2"/><text x="${X(.2) + 10}" y="${Y(y20b) + 16}" fill="#67e8f9" font-size="12">teste fora da amostra: ${Math.round(y20b * 100)}%</text>`;
+  $('#g-tese').innerHTML = g + '</svg>';
+  // mapa
+  $('#t-map-sub').textContent = `Em vermelho, os ${fmt(S.length)} trechos que concentram ${pc}% das mortes. Clique num ponto para o detalhe com ação, custo e responsável.`;
+  if (!mapaT) { mapaT = L_.map('mapa-tese', {zoomControl: true, attributionControl: false, preferCanvas: true, minZoom: 3, maxZoom: 12}).setView([-14.5, -53], 4.2);
+    for (const poly of D.contorno) L_.polygon(poly.map(([x, y]) => [y, x]), {color: '#163049', weight: 1, fillColor: '#081221', fillOpacity: 1, interactive: false}).addTo(mapaT);
+    L_.polyline(D.linhas.map(([b, c]) => { const ll = []; for (let k = 0; k < c.length; k += 2) ll.push([c[k], c[k + 1]]); return ll; }), {color: '#1d4a66', weight: 1.1, opacity: .9, interactive: false}).addTo(mapaT); }
+  if (camadaT) camadaT.remove(); camadaT = L_.layerGroup().addTo(mapaT); const em = new Set(S);
+  for (const i of LS) if (!em.has(i)) L_.circleMarker([T.lat[i], T.lon[i]], {radius: 1.8, stroke: false, fillColor: '#334155', fillOpacity: .8, interactive: false}).addTo(camadaT);
+  for (const i of [...S].reverse()) { L_.circleMarker([T.lat[i], T.lon[i]], {radius: 8, stroke: false, fillColor: '#f43f5e', fillOpacity: .1, interactive: false}).addTo(camadaT);
+    L_.circleMarker([T.lat[i], T.lon[i]], {radius: 3.4, color: '#fb7185', weight: 1, fillColor: '#f43f5e', fillOpacity: .95}).bindTooltip(`${esc(nome(i))} · ${esc(T.mun[i])}<br>${T.m[i]} mortes 2021–2026<br>Ação: ${esc(principal(i)?.m.curto || '–')} · ${esc(gestorCurto(i))}`).on('click', () => abrirTrecho(i)).addTo(camadaT); }
+  if (LS.length < N) mapaT.fitBounds(L_.latLngBounds(LS.map(i => [T.lat[i], T.lon[i]])), {padding: [30, 30], maxZoom: 9}); else mapaT.setView([-14.5, -53], 4.2);
+  // prova
+  const sE = [...LS].sort((a, b) => T.esp[b] - T.esp[a]).slice(0, S.length), eS = sE.reduce((a, i) => a + T.esp[i], 0), eT = LS.reduce((a, i) => a + T.esp[i], 0);
+  $('#t-prova').innerHTML = `<div><b>Não é sorte de um ano ruim</b>Escolhendo os 20% só com as mortes de 2021–2023, eles concentraram ${Math.round(y20b * 100)}% das mortes de 2024–2026, ${f1(y20b / .2)} vezes o que se esperaria se o risco fosse igual entre os trechos.</div>`
+    + `<div><b>Vale também para o risco futuro</b>Pelas mortes esperadas nos próximos 12 meses (correção estatística de Bayes empírico, que desconta o acaso), os 20% de maior risco somam ${Math.round(eS / Math.max(1e-9, eT) * 100)}% do total esperado.</div>`
+    + `<div><b>Base oficial, trecho a trecho</b>Cada morte vem da PRF com local, data e tipo. O responsável vem da ANTT; custos do DNIT (SICRO e CMG). Nenhum dado simulado. O cálculo acompanha os filtros do topo.</div>`; }
+// ---------- VISÃO ----------
+let mapa, camada, modoMapa = 'risco';
+function desenharVisao() {
+  const tot = LS.reduce((a, i) => a + T.m[i], 0), esp = LS.reduce((a, i) => a + T.esp[i], 0), P = montarPlano(orcamento() * 1e6), pr = projetar(LS, P.vidas);
+  const crit = LS.filter(i => nivel(i) === 3).length, n20 = Math.max(1, Math.round(LS.length * .2)), ord = [...LS].sort((a, b) => T.m[b] - T.m[a]), m20 = ord.slice(0, n20).reduce((a, i) => a + T.m[i], 0);
+  $('#kpis').innerHTML = [
+   ['n-vm', fmt(tot), `mortes nos trechos filtrados (jan/2021 a out/2026) · ${fmt(LS.length)} trechos de 5 km`, 'rgba(244,63,94,.18)'],
+   ['n-am', fmt(esp), `mortes esperadas nos próximos 12 meses se nada mudar · ${fmt(crit)} trechos críticos`, 'rgba(251,191,36,.16)'],
+   ['n-vd', fmt(P.vidas), `vidas salvas por ano com o plano recomendado de ${rs(P.gasto)} (${fmt(P.trechos)} trechos)`, 'rgba(52,211,153,.18)'],
+   ['n-mg', Math.round(m20 / Math.max(1, tot) * 100) + '%', `das mortes estão em só 20% dos trechos (${fmt(n20)}). Começar por eles rende mais vidas por real`, 'rgba(232,121,249,.18)']]
+   .map(([c, v, t, g]) => `<div class="card kpi" style="--g:${g}"><b class="${c}">${v}</b><span>${t}</span></div>`).join('');
+  // insights
+  const mecs = MEC.map((m, k) => [k, LS.reduce((a, i) => a + T.med[i][k], 0)]).sort((a, b) => b[1] - a[1]);
+  const top = [...LS].sort((a, b) => T.esp[b] - T.esp[a]).slice(0, 3), alta = LS.filter(i => T.tend[i] >= 1).length;
+  const radar = montarPlano(Infinity, top.length ? [...LS].sort((a, b) => T.esp[b] - T.esp[a]).slice(0, 100) : [], 'custo'); const rad = radar.acoes.filter(a => a.m.id === 'radar');
+  const donos = {}; for (const i of LS) { const g = eConc(i) ? 'Concessionárias federais (ANTT)' : 'DNIT'; donos[g] = (donos[g] || 0) + T.esp[i]; }
+  const mes = new Date().getMonth(), climaAgora = LS.filter(i => T.cj[i] >= 0 && [T.cj[i], (T.cj[i] + 1) % 12, (T.cj[i] + 2) % 12].includes(mes)).length;
+  const ins = [
+   `<b>Projeção:</b> se nada mudar, ${fmt(pr.p26)} mortes em 2026 e ${fmt(pr.tend[3])} em 2030 nestes trechos (tendência de ${pr.b >= 0 ? 'alta' : 'queda'} de ${fmt(Math.abs(pr.b))} por ano). Com o plano recomendado, ${fmt(pr.plano[3])} em 2030.`,
+   mecs[0] && mecs[0][1] ? `<b>Causa que mais mata:</b> ${MEC[mecs[0][0]].nome.toLowerCase()} (${Math.round(mecs[0][1] / Math.max(1, tot) * 100)}% das mortes). Medida com maior efeito: ${MED.find(m => m.mec === mecs[0][0])?.nome.toLowerCase() || 'fiscalização e engenharia'}.` : '',
+   top.length ? `<b>Prioridade 1:</b> ${top.map(i => `${nome(i)} (${esc(T.mun[i])})`).join('; ')}.` : '',
+   rad.length ? `<b>Ganho rápido:</b> radares nos ${fmt(rad.length)} trechos mais críticos custam ${rs(rad.reduce((a, x) => a + x.custo, 0))} até 2030 e salvam cerca de ${fmt(rad.reduce((a, x) => a + x.vidas, 0))} vidas por ano.` : '',
+   alta ? `<b>Alerta de tendência:</b> ${fmt(alta)} trechos têm mais mortes em 2024–2025 do que na média de 2021–2023.` : '',
+   Object.keys(donos).length ? `<b>Quem age:</b> ${Object.entries(donos).sort((a, b) => b[1] - a[1]).map(([d, v]) => `${d}, ${fmt(v)} mortes esperadas`).join('; ')}. PRF na fiscalização e Defesa Civil nos eventos climáticos.` : '',
+   ICM ? (() => { const m = [0, 0, 0, 0]; let t = 0; for (const i of LS) { const c = icmC(i); if (c >= 0) { m[c] += T.m[i]; t += T.m[i]; } } return t ? `<b>Pavimento (ICM DNIT ${ICM.ate}):</b> ${Math.round((m[2] + m[3]) / t * 100)}% das mortes em rodovias do DNIT acontecem em trechos com pavimento ruim ou péssimo; a maior parte está em pavimento bom, onde pesam velocidade e traçado.` : ''; })() : '',
+   AD && AT ? (() => { const x = LS.filter(i => adAlto(i) && duplo(i)); return x.length ? `<b>Adaptação climática:</b> ${fmt(x.length)} trechos têm sinistros climáticos recorrentes, desastre recorrente no município e risco alto de inundação em ${AD.ano} (AdaptaBrasil): ${fmt(x.reduce((a, i) => a + T.m[i], 0))} mortes. Prioridade máxima para drenagem e interdição preventiva.` : ''; })() : '',
+   AT ? (() => { const x = LS.filter(duplo); return x.length ? `<b>Desastres (Defesa Civil):</b> ${fmt(x.length)} trechos têm sinistros climáticos recorrentes e desastre recorrente no município (${fmt(x.reduce((a, i) => a + T.m[i], 0))} mortes): prioridade para drenagem, contenção de encosta e interdição preventiva.` : ''; })() : '',
+   climaAgora ? `<b>Clima:</b> ${fmt(climaAgora)} trechos entram agora na época de risco climático recorrente. Defesa Civil lidera, com PRF e gestor da via.` : ''].filter(Boolean);
+  $('#insights').innerHTML = ins.map((t, k) => `<li><i>${k + 1}</i><span>${t}</span></li>`).join('') || '<li>Nenhum trecho com os filtros atuais.</li>';
+  const anos = ['2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2029', '2030'];
+  $('#g-proj').innerHTML = linha({xs: anos, series: [
+    {v: [...pr.s.slice(0, 5), null, null, null, null, null], c: '#fb7185', rot: 'real'},
+    {v: [null, null, null, null, pr.s[4], pr.p26, ...pr.tend], c: '#fbbf24', dash: true, rot: 'se nada mudar'},
+    {v: [null, null, null, null, null, pr.p26, ...pr.plano], c: '#34d399', rot: 'com o plano'}]});
+  // Pnatrans
+  const sim = D.pn.sim, tx = D.pn.taxa, ys = Object.keys(sim).map(Number).filter(a => a >= 2015), meta = D.pn.meta2030, ult = Math.max(...ys), pre = (D.pn.prelim || []).includes(ult);
+  const t20 = ys.filter(a => a >= 2020), xm = t20.reduce((a, b) => a + b) / t20.length, ym = t20.reduce((a, b) => a + tx[b], 0) / t20.length;
+  let nu = 0, de = 0; t20.forEach(a => { nu += (a - xm) * (tx[a] - ym); de += (a - xm) ** 2; }); const bb = nu / de, proj = a => ym + bb * (a - xm);
+  const xs2 = [...ys]; for (let a = ult + 1; a <= 2030; a++) xs2.push(a);
+  $('#g-pn').innerHTML = linha({xs: xs2.map(String), h: 190, yMin: 0, yMax: 24, yfmt: v => f1(v), series: [
+    {v: xs2.map(a => tx[a] ?? null), c: '#fb7185', rot: 'real'},
+    {v: xs2.map(a => a >= ult ? (a === ult ? tx[ult] : proj(a)) : null), c: '#fbbf24', dash: true, rot: 'tendência'},
+    {v: xs2.map(a => a >= 2020 ? tx[2020] + (meta - tx[2020]) * (a - 2020) / 10 : null), c: '#34d399', dash: true, pts: false, rot: 'meta ' + f1(meta)}]}) +
+    `<p class="sub" style="margin-top:6px">${ult}${pre ? ' (SIM, dado preliminar)' : ''}: ${fmt(sim[ult])} mortes, ${f1(tx[ult])} por 100 mil${pre ? ` (2024 final: ${fmt(sim[2024])}; ${f1(tx[2024])})` : ''}. No ritmo atual, 2030 terminaria em ${f1(proj(2030))}, ${f1(proj(2030) / meta)} vezes a meta.</p>`;
+  const mecTot = MEC.map((m, k) => [m.nome, LS.reduce((a, i) => a + T.med[i][k], 0), m.cor, (k === 0 ? 'Separar sentidos' : MED.find(x => x.mec === k)?.curto) || 'Fiscalização']).sort((a, b) => b[1] - a[1]);
+  $('#g-mec').innerHTML = barras(mecTot, {larg: 190});
+  desenharMapa(); desenharDonos(); desenharICM(); }
+function desenharICM() {
+  if (!ICM) return; const m = [0, 0, 0, 0], kmU = ICM.km_classe[String(ICM.ate)] || [0, 0, 0, 0]; let semI = 0, dn = 0;
+  for (const i of LS) { if (eConc(i)) continue; dn += T.m[i]; const c = icmC(i); if (c >= 0) m[c] += T.m[i]; else semI += T.m[i]; }
+  const tot = m.reduce((a, b) => a + b, 0) || 1, X = ICM.cruz, mx = Math.max(...X.taxa, .01), kt = kmU.reduce((a, b) => a + b, 0) || 1;
+  $('#icm-sub').innerHTML = `ICM do DNIT, levantamentos de ${ICM.anos[0]} a ${ICM.ate}, cruzado km a km com as mortes da PRF. Vale só para a malha sob administração do DNIT; trechos concedidos são fiscalizados pela ANTT. Faixas oficiais: Bom &lt; 30, Regular 30–50, Ruim 50–70, Péssimo ≥ 70. <span class="fonte">Real · DNIT e PRF</span>`;
+  $('#icm-kpi').innerHTML = `<div style="border-color:#34d39966"><b style="color:#34d399">${Math.round(m[0] / tot * 100)}% das mortes</b><span>em trechos do DNIT com pavimento bom no último levantamento (${ICM.ate}); ${Math.round((m[2] + m[3]) / tot * 100)}% em pavimento ruim ou péssimo. Nos filtros atuais.</span></div>`
+    + `<div style="border-color:#fbbf2466"><b style="color:#fbbf24">Pavimento ruim não explica as mortes</b><span>No mesmo ano do levantamento, trechos ruins ou péssimos não têm mais mortes por km que os bons. Recuperar pavimento é necessário, mas não basta: combine com velocidade, separação de fluxos e travessias.</span></div>`;
+  $('#icm-barras').innerHTML = `<div class="sub" style="margin:4px 0 6px">Mortes por 100 km por ano, no mesmo ano do levantamento (Brasil, malha DNIT avaliada ${ICM.anos[0]}–${ICM.ate})</div>` + NOMEICM.map((t, k) => `<div style="display:grid;grid-template-columns:110px 1fr 300px;gap:10px;align-items:center;margin:7px 0;font-size:13px"><span>${t}</span><div style="height:12px;background:rgba(255,255,255,.05);border-radius:6px"><div style="height:100%;width:${X.taxa[k] / mx * 100}%;background:${CORICM[k]};border-radius:6px;box-shadow:0 0 10px ${CORICM[k]}"></div></div><span class="mono">${f1(X.taxa[k])} por 100 km/ano · ${Math.round(kmU[k] / kt * 100)}% da malha ${ICM.ate}</span></div>`).join(''); }
+function desenharDonos() {
+  const ag = new Map(); for (const i of LS) { const k = T.conc[i]; const g = ag.get(k) || {n: 0, m: 0, e: 0, brs: new Set()}; g.n++; g.m += T.m[i]; g.e += T.esp[i]; g.brs.add(br3(T.br[i]) + '/' + T.uf[i]); ag.set(k, g); }
+  const tot = [...ag.values()].reduce((a, g) => a + g.m, 0) || 1, dn = ag.get(-1) || {n: 0, m: 0, e: 0, brs: new Set()};
+  const cs = [...ag.entries()].filter(([k]) => k >= 0), cm = cs.reduce((a, [, g]) => a + g.m, 0), ce = cs.reduce((a, [, g]) => a + g.e, 0), cn = cs.reduce((a, [, g]) => a + g.n, 0);
+  $('#o-kpi').innerHTML = `<div style="border-color:${COR_DONO.dnit}66"><b style="color:${COR_DONO.dnit}">DNIT · ${Math.round(dn.m / tot * 100)}% das mortes</b><span>${fmt(dn.n)} trechos com morte · ${fmt(dn.m)} mortes 2021–2026 · ${fmt(dn.e)} esperadas/ano</span></div><div style="border-color:${COR_DONO.conc}66"><b style="color:${COR_DONO.conc}">Concessionárias · ${Math.round(cm / tot * 100)}% das mortes</b><span>${cs.length} contratos federais (fiscalização ANTT) · ${fmt(cn)} trechos com morte · ${fmt(cm)} mortes · ${fmt(ce)} esperadas/ano</span></div>`;
+  const fx = t => t.map(x => `${br3(x.br)}/${x.uf} km ${f1(x.a)}–${f1(x.z)}`).join('; ');
+  const lin = [[-1, dn]].concat(cs.sort((a, b) => b[1].e - a[1].e)).filter(([, g]) => g.n).map(([k, g]) => k < 0 ? `<tr class="cl" data-g="dnit"><td><b style="color:${COR_DONO.dnit}">● DNIT</b><div class="sub">administração direta</div></td><td class="sub">Todos os trechos federais fora das concessões: ${fmt(g.brs.size)} rodovias/UF com morte nos filtros atuais</td><td class="n mono">${fmt(g.n)}</td><td class="n mono">${fmt(g.m)}</td><td class="n mono">${f1(g.e)}</td></tr>`
+    : `<tr class="cl" data-g="c:${k}"><td><b style="color:${COR_DONO.conc}">● ${esc(CONC[k])}</b><div class="sub">concessionária · fiscalização ANTT</div></td><td class="sub">${fx(D.ctab[k].trechos)}</td><td class="n mono">${fmt(g.n)}</td><td class="n mono">${fmt(g.m)}</td><td class="n mono">${f1(g.e)}</td></tr>`).join('');
+  $('#o-corpo').innerHTML = lin || '<tr><td colspan="5" class="vazio">Nenhum trecho com os filtros atuais.</td></tr>';
+  $$('#o-corpo tr[data-g]').forEach(r => r.onclick = () => { F.gestor = r.dataset.g; $('#f-gestor').value = F.gestor; aplicar(); }); }
+function desenharMapa() {
+  if (!mapa) { mapa = L_.map('mapa', {zoomControl: true, attributionControl: false, preferCanvas: true, minZoom: 3, maxZoom: 12}).setView([-14.5, -53], 4.3);
+    for (const poly of D.contorno) L_.polygon(poly.map(([x, y]) => [y, x]), {color: '#163049', weight: 1, fillColor: '#081221', fillOpacity: 1, interactive: false}).addTo(mapa);
+    const lin = D.linhas.map(([b, c]) => { const ll = []; for (let k = 0; k < c.length; k += 2) ll.push([c[k], c[k + 1]]); return ll; });
+    L_.polyline(lin, {color: '#1d4a66', weight: 1.1, opacity: .9, interactive: false}).addTo(mapa); }
+  if (camada) camada.remove(); camada = L_.layerGroup().addTo(mapa);
+  const dono = modoMapa === 'dono', pav = modoMapa === 'icm', ada = modoMapa === 'adapta';
+  $('#m-leg').innerHTML = ada ? AD.classes.map((t, k) => `<span><i style="background:${CORAD[k]}"></i>${t}</span>`).join('') + `<span style="opacity:.8">Risco de inundação, enxurrada e alagamento no município, ${AD.ano}, cenário ${AD.cenario} (AdaptaBrasil/MCTI)</span>` : pav ? NOMEICM.map((t, k) => `<span><i style="background:${CORICM[k]}"></i>${t}</span>`).join('') + `<span><i style="background:#475569"></i>Sem ICM (concessão ou sem levantamento)</span><span style="opacity:.8">ICM DNIT, faixas oficiais</span>` : dono ? `<span><i style="background:${COR_DONO.dnit}"></i>DNIT (administração direta)</span><span><i style="background:${COR_DONO.conc}"></i>Concessionária federal (fiscalização ANTT)</span><span style="opacity:.8">Tamanho do ponto = nível de risco</span>`
+    : NIV.map(x => x).reverse().map(x => `<span><i style="background:${x.c}"></i>${x.t}</span>`).join('') + '<span style="opacity:.8">Cor = mortes esperadas nos próximos 12 meses</span>';
+  const pts = [...LS].sort((a, b) => T.esp[a] - T.esp[b]).slice(-2500);
+  for (const i of pts) { const n = nivel(i), c = ada ? (adC(i) >= 0 ? CORAD[adC(i)] : '#475569') : pav ? (icmC(i) >= 0 ? CORICM[icmC(i)] : '#475569') : dono ? corDono(i) : NIV[n].c;
+    if (n >= 2) L_.circleMarker([T.lat[i], T.lon[i]], {radius: 9 + n * 2, stroke: false, fillColor: c, fillOpacity: .12, interactive: false}).addTo(camada);
+    L_.circleMarker([T.lat[i], T.lon[i]], {radius: 2.5 + n * 1.4, color: c, weight: 1, fillColor: c, fillOpacity: .9}).bindTooltip(`${esc(nome(i))} · ${esc(T.mun[i])}<br>${T.m[i]} mortes · ${f1(T.esp[i])} esperadas/ano<br>Responsável: ${esc(gestorCurto(i))}${eConc(i) ? ' (ANTT)' : ''}${icmC(i) >= 0 ? `<br>Pavimento: ICM ${f1(icmV(i))} (${NOMEICM[icmC(i)]})` : ''}`).on('click', () => abrirTrecho(i)).addTo(camada); }
+  if (LS.length && LS.length < N) { const b = L_.latLngBounds(LS.map(i => [T.lat[i], T.lon[i]])); mapa.fitBounds(b, {padding: [30, 30], maxZoom: 9}); } else mapa.setView([-14.5, -53], 4.3); }
+// ---------- RANKING ----------
+let rLim = 200;
+function ordenados() { const o = $('#r-ord').value, k = o === 'vida' ? vidaPorMi : i => T[o][i]; return [...LS].sort((a, b) => k(b) - k(a)); }
+function motivo(i) { const c = T.cau[i][0]; return c ? D.causas[c[0]] : '–'; }
+function desenharRanking() {
+  const R = ordenados(), top = R.slice(0, 30);
+  $('#top30').innerHTML = top.map((i, k) => { const n = nivel(i), a = principal(i), rd = ACO[i].find(x => x.m.id === 'radar');
+    return `<div class="tc" data-i="${i}" style="border-left:3px solid ${NIV[n].c}"><span class="p">${String(k + 1).padStart(2, '0')}</span><b>${nome(i)}</b><div class="l">${esc(T.mun[i])} (${T.uf[i]}) · ${esc(gestorCurto(i))}</div>
+     <div class="m"><span><strong style="color:${NIV[n].c}">${T.m[i]}</strong> mortes</span><span><strong>${f1(T.esp[i])}</strong> esperadas/ano</span><span><strong>${T.anosM[i]}/6</strong> anos com morte</span></div>
+     <div class="sub" style="font-size:12.5px;margin-top:6px">Motivo: ${esc(motivo(i))}</div>${a ? `<div class="a">→ ${esc(a.m.curto)} · ${rs(a.custo)} · ${f1(a.vidas)} vidas/ano</div>` : ''}${rd && a && a.m.id !== 'radar' ? `<div class="sub" style="font-size:12px;margin-top:2px">Ganho rápido: radar · ${rs(rd.custo)} · ${f1(rd.vidas)} vidas/ano</div>` : ''}</div>`; }).join('') || '<div class="vazio">Nenhum trecho com os filtros atuais.</div>';
+  $$('#top30 .tc').forEach(el => el.onclick = () => abrirTrecho(+el.dataset.i));
+  rLim = 200; $('#r-cont').textContent = `${fmt(R.length)} trechos com os filtros atuais. Role para ver todos; clique numa linha para o detalhe.`; linhasRanking(R, 0); }
+function linhasRanking(R, de) {
+  const html = R.slice(de, rLim).map((i, k) => { const n = nivel(i), a = principal(i);
+    return `<tr class="cl" data-i="${i}"><td class="pos">${de + k + 1}</td><td><b>${nome(i)}</b><div class="sub">${esc(T.mun[i])} (${T.uf[i]})</div></td><td><span class="niv" style="background:color-mix(in srgb,${NIV[n].c} 18%,transparent);color:${NIV[n].c}">${NIV[n].t.toUpperCase()}</span></td><td class="n mono">${T.m[i]}</td><td class="n mono">${f1(T.esp[i])}</td><td>${esc(motivo(i))}</td><td>${a ? esc(a.m.curto) + `<div class="sub">${rs(a.custo)} · ${f1(a.vidas)} vidas/ano</div>` : '–'}</td><td><span style="color:${corDono(i)}">●</span> ${esc(gestorCurto(i))}</td></tr>`; }).join('');
+  if (de === 0) $('#r-corpo').innerHTML = html; else $('#r-corpo').insertAdjacentHTML('beforeend', html);
+  $$('#r-corpo tr:not([data-l])').forEach(tr => { tr.dataset.l = 1; tr.onclick = () => abrirTrecho(+tr.dataset.i); }); }
+$('#rol')?.addEventListener('scroll', e => { const el = e.target; if (el.scrollTop + el.clientHeight > el.scrollHeight - 300) { const R = ordenados(); if (rLim < R.length) { const de = rLim; rLim += 300; linhasRanking(R, de); } } });
+// ---------- GAVETA (detalhe) ----------
+let gAtual = null;
+function abrirTrecho(i) { gAtual = i; const n = nivel(i), A = ACO[i], mp = mecPrin(i);
+  const mx = Math.max(1, ...T.ano[i]);
+  const clima = T.cj[i] >= 0 ? (() => { const cc = T.cc[i], k = cc.indexOf(Math.max(...cc)), C = CLIMA[k]; return `<div class="card bloco" style="border-color:rgba(251,191,36,.4)"><h3 style="color:#fde68a">Risco climático recorrente</h3><p class="sub">${C.nome}: sinistros se repetem de ${MESES[T.cj[i]]} a ${MESES[(T.cj[i] + 2) % 12]}, em vários anos. ${C.acao}</p><div class="donos"><span class="dono lid">Líder: ${C.lider}</span>${C.com.map(c => `<span class="dono">${esc(viaDono(c, i))}</span>`).join('')}</div></div>`; })() : '';
+  const fut = AD && adC(i) >= 0 ? `<p class="sub" style="margin-top:6px">Risco de inundação, enxurrada e alagamento no município em ${AD.ano} (AdaptaBrasil, cenário ${AD.cenario}): <b style="color:${CORAD[adC(i)]}">${AD.classes[adC(i)]}</b> (${f1(AD.v[i])}).</p>` : '';
+  const des = AT && AT.dz[i] ? `<div class="card bloco" style="border-color:rgba(167,139,250,.45)"><h3 style="color:#c4b5fd">Desastres no município (Defesa Civil)</h3><p class="sub">${esc(T.mun[i])}, 2021–2025: ${AT.cats.map((c, k) => AT.dz[i][k] ? `${c.toLowerCase()} ${AT.dz[i][k]}` : '').filter(Boolean).join(' · ')}. Desastre em ${AT.za[i]} dos 10 anos de 2016 a 2025${AT.zr[i] ? `; ${AT.zr[i]} com reconhecimento federal` : ''}.${desRec(i) ? ' <b>Desastre recorrente.</b>' : ''} Fonte: Atlas Digital de Desastres (S2iD).</p></div>` : '';
+  $('#g-corpo').innerHTML = `<span class="fonte">Trecho de 5 km</span><h2 style="margin-top:8px;font-size:22px">${nome(i)}</h2><p class="sub">${esc(T.mun[i])} (${UFN[T.uf[i]]}) · Responsável: <b style="color:var(--tx)">${esc(gestor(i))}</b>${icmC(i) >= 0 ? ` · Pavimento: <b style="color:${CORICM[icmC(i)]}">ICM ${f1(icmV(i))} · ${NOMEICM[icmC(i)]}</b> <span style="opacity:.8">(DNIT, levantamento ${ICM.ano[i]}${ICM.serie[i] && Object.keys(ICM.serie[i]).length > 1 ? '; série: ' + Object.entries(ICM.serie[i]).map(([a, v]) => a + ' ' + f1(v)).join(', ') : ''})</span>` : ''}</p>
+   <div class="grade k3 bloco"><div class="card kpi"><b class="n-vm">${T.m[i]}</b><span>mortes jan/2021–out/2026</span></div><div class="card kpi"><b style="color:${NIV[n].c}">${f1(T.esp[i])}</b><span>esperadas/ano · risco ${NIV[n].t.toLowerCase()}</span></div><div class="card kpi"><b class="n-ci">${T.fg[i]}</b><span>feridos graves</span></div></div>
+   <div class="card bloco"><h3>Mortes por ano</h3>${barras(T.ano[i].map((v, k) => [String(2021 + k) + (k === 5 ? ' (até out)' : ''), v, '#fb7185']), {larg: 110})}<p class="sub" style="margin-top:6px">${T.tend[i] >= 1 ? 'Em alta: 2024–2025 acima da média de 2021–2023.' : T.tend[i] <= -1 ? 'Em queda recente.' : 'Estável.'} ${Math.round(T.noite[i] * 100)}% das mortes à noite · ${T.dupla[i] ? 'pista dupla' : 'pista simples'} · ${Math.round(T.urb[i] * 100)}% em área urbana.</p></div>
+   <div class="card bloco"><h3>Como se morre</h3>${barras(MEC.map((m, k) => [m.nome, T.med[i][k], m.cor]).filter(x => x[1]), {larg: 190})}<h3 style="margin-top:12px">Motivos registrados pela PRF</h3>${T.cau[i].map(([c, v]) => `<div class="bar"><span style="width:auto;flex:1">${esc(D.causas[c])}</span><span class="v">${v}</span></div>`).join('')}</div>
+   ${clima}${des}${fut}
+   <div class="card bloco ia"><div class="tit-ia"><span class="pulso"></span><h3 style="margin:0">Ações recomendadas</h3></div><p class="sub">Da mais barata por vida salva para a mais cara. Custo de referência e eficácia publicada.</p>
+    ${A.map((a, k) => `<div class="acao${k === 0 ? ' best' : ''}"><div class="h"><b>${esc(a.m.nome)}</b>${k === 0 ? '<span class="selo2">MELHOR CUSTO-BENEFÍCIO</span>' : ''}</div><div class="nums"><span>Custo <strong>${rs(a.custo)}</strong></span><span>Vidas/ano <strong>${f1(a.vidas)}</strong></span><span>Até 2030 <strong>${f1(a.vidas * 4)}</strong></span></div><div class="sub" style="font-size:12.5px;margin-top:5px">Dono: ${esc(donoMed(a.m, i))} · ${esc(a.m.fEf)}</div></div>`).join('') || '<p class="sub">Sem medida de engenharia indicada: reforçar fiscalização da PRF.</p>'}
+    <div style="margin-top:12px"><button class="btn" type="button" id="ia-trecho">✦ Parecer do trecho</button></div><div class="parecer" id="par-trecho" hidden></div></div>`;
+  $('#gaveta').classList.add('on'); $('#gaveta').scrollTop = 0;
+  $('#ia-trecho').onclick = () => parecer('#par-trecho', `Trecho ${nome(i)} (${T.mun[i]}/${T.uf[i]}), responsável ${gestor(i)}. Mortes 2021–out/2026: ${T.m[i]} (por ano: ${T.ano[i].join(', ')}). Esperadas próximos 12 meses: ${f1(T.esp[i])}. Tipos: ${MEC.map((m, k) => `${m.nome} ${T.med[i][k]}`).join('; ')}. Motivos PRF: ${T.cau[i].map(([c, v]) => `${D.causas[c]} (${v})`).join('; ')}. Ações: ${A.map(a => `${a.m.nome}, custo ${rs(a.custo)}, ${f1(a.vidas)} vidas/ano, dono ${donoMed(a.m, i)}`).join(' | ')}.`, 120, () => parecerTrecho(i)); }
+function fecharGaveta() { $('#gaveta').classList.remove('on'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { fecharGaveta(); $('#alerta').hidden = true; } });
+// ---------- PLANO ----------
+const orcamento = () => +($('#orc')?.value || 1000);
+let planoAtual = null;
+function desenharPlano() {
+  const P = montarPlano(orcamento() * 1e6); planoAtual = P; $('#orc-v').textContent = rs(orcamento() * 1e6);
+  const esp = LS.reduce((a, i) => a + T.esp[i], 0);
+  $('#p-kpis').innerHTML = [['n-ci', rs(P.gasto), 'investimento selecionado'], ['n-vd', fmt(P.vidas), 'vidas salvas por ano (estimativa)'], ['n-mg', fmt(P.vidas * 4), 'vidas salvas de 2027 a 2030'], ['n-am', Math.round(P.vidas / Math.max(1, esp) * 100) + '%', `das ${fmt(esp)} mortes esperadas por ano nestes trechos`]]
+   .map(([c, v, t]) => `<div class="card kpi"><b class="${c}" style="font-size:28px">${v}</b><span>${t}</span></div>`).join('');
+  const dono = {}, med = {}; for (const a of P.acoes) { const d = a.m.dono === 'vel' ? 'PRF + gestor (radares)' : a.m.dono === 'ped' ? 'Gestor + prefeituras' : (eConc(a.i) ? 'Concessionárias (ANTT)' : 'DNIT');
+    (dono[d] = dono[d] || [0, 0, 0]); dono[d][0] += a.custo; dono[d][1] += a.vidas; dono[d][2]++; (med[a.m.nome] = med[a.m.nome] || [0, 0, 0]); med[a.m.nome][0] += a.custo; med[a.m.nome][1] += a.vidas; med[a.m.nome][2]++; }
+  $('#p-dono').innerHTML = barras(Object.entries(dono).sort((a, b) => b[1][1] - a[1][1]).map(([d, [c, v, n]]) => [d, v, '#34d399', `${n} ações · ${rs(c)}`]), {fmtv: v => f1(v), larg: 190});
+  $('#p-med').innerHTML = barras(Object.entries(med).sort((a, b) => a[1][0] / a[1][1] - b[1][0] / b[1][1]).map(([d, [c, v, n]]) => [d, v, '#22d3ee', `${n} trechos · ${rs(c)}`]), {fmtv: v => f1(v), larg: 210});
+  $('#p-cont').textContent = `${fmt(P.acoes.length)} ações em ${fmt(P.trechos)} trechos, da mais custo-efetiva para a menos. Clique para ver o trecho.`;
+  $('#p-corpo').innerHTML = P.acoes.slice(0, 400).map((a, k) => `<tr class="cl" data-i="${a.i}"><td class="pos">${k + 1}</td><td><b>${nome(a.i)}</b><div class="sub">${esc(T.mun[a.i])} (${T.uf[a.i]})</div></td><td>${esc(a.m.nome)}</td><td>${esc(donoMed(a.m, a.i))}</td><td class="n mono">${rs(a.custo)}</td><td class="n mono">${f1(a.vidas)}</td><td class="n mono">${rs(a.custo / a.vidas)}</td></tr>`).join('') || '<tr><td colspan="7" class="vazio">Sem ações com os filtros atuais.</td></tr>';
+  $$('#p-corpo tr.cl').forEach(tr => tr.onclick = () => abrirTrecho(+tr.dataset.i)); }
+$('#orc').addEventListener('input', () => { if (vista === 'plano') desenharPlano(); });
+$('#modo').addEventListener('change', () => desenharPlano());
+$('#csv-plano').addEventListener('click', () => { const P = planoAtual || montarPlano(orcamento() * 1e6);
+  const linhas = [['ordem', 'rodovia', 'uf', 'km_inicio', 'km_fim', 'municipio', 'acao', 'dono', 'custo_rs', 'vidas_ano', 'vidas_2027_2030'].join(';')].concat(P.acoes.map((a, k) => [k + 1, br3(T.br[a.i]), T.uf[a.i], T.km[a.i], T.km[a.i] + 5, T.mun[a.i], a.m.nome, donoMed(a.m, a.i), Math.round(a.custo), a.vidas.toFixed(2).replace('.', ','), (a.vidas * 4).toFixed(2).replace('.', ',')].join(';')));
+  const txt = '\ufeff' + linhas.join('\n');
+  if (downloadsApi) { downloadsApi.save({filename: 'plano_acao_sentinela_br.csv', data: txt}).catch(() => {}); return; }
+  const b = new Blob([txt], {type: 'text/csv;charset=utf-8'}), u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'plano_acao_sentinela_br.csv'; document.body.appendChild(el); el.click(); el.remove(); });
+let downloadsApi = null; if (window.claude && claude.use) claude.use('downloads').then(d => downloadsApi = d).catch(() => {});
+// ---------- CLIMA ----------
+function desenharClima() {
+  const C = D.clima, Lc = LS.filter(i => T.cj[i] >= 0).sort((a, b) => T.m[b] - T.m[a]);
+  $('#c-kpis').innerHTML = [['n-am', fmt(C.total[1]), `mortes em sinistros com chuva, neblina, fumaça, vento ou deslizamento (${Math.round(C.total[1] / C.mortes_tot * 100)}% do total)`], ['n-ci', fmt(C.total[0]), 'sinistros com evento climático, 2021–2026'], ['n-mg', fmt(Lc.length), 'trechos com risco climático recorrente (filtros aplicados)'], ['n-vm', fmt(Lc.reduce((a, i) => a + T.m[i], 0)), 'mortes nesses trechos']]
+   .map(([c, v, t]) => `<div class="card kpi"><b class="${c}" style="font-size:28px">${v}</b><span>${t}</span></div>`).join('');
+  const cores = ['#a78bfa', '#fb923c', '#cbd5e1', '#22d3ee', '#34d399'];
+  $('#g-clima').innerHTML = linha({xs: MESES, h: 240, yfmt: v => fmt(v), series: C.mes_cat_m.map((v, k) => ({v: v.map(x => x / 5), c: cores[k], rot: C.cats[k].split(' ')[0]}))}) + `<div class="leg">${C.cats.map((c, k) => `<span><i style="background:${cores[k]}"></i>${c}</span>`).join('')}</div>`;
+  $('#c-donos').innerHTML = CLIMA.map(c => `<div class="al"><b>${c.nome}</b><div class="sub" style="margin-top:3px">${c.acao}</div><div class="donos"><span class="dono lid">Líder: ${c.lider}</span>${c.com.map(x => `<span class="dono">${x}</span>`).join('')}</div></div>`).join('');
+  $('#c-corpo').innerHTML = Lc.slice(0, 400).map(i => { const cc = T.cc[i], k = cc.indexOf(Math.max(...cc)), Cl = CLIMA[k];
+    return `<tr class="cl" data-i="${i}"><td><b>${nome(i)}</b><div class="sub">${esc(T.mun[i])} (${T.uf[i]})</div></td><td class="mono">${MESES[T.cj[i]]}–${MESES[(T.cj[i] + 2) % 12]}</td><td>${Cl.nome}</td><td class="n mono">${T.m[i]}</td><td><div class="donos" style="margin:0"><span class="dono lid">${Cl.lider}</span>${Cl.com.slice(0, 2).map(x => `<span class="dono">${esc(viaDono(x, i))}</span>`).join('')}</div></td></tr>`; }).join('') || '<tr><td colspan="5" class="vazio">Nenhum trecho com risco climático recorrente nos filtros atuais.</td></tr>';
+  $$('#c-corpo tr.cl').forEach(tr => tr.onclick = () => abrirTrecho(+tr.dataset.i));
+  if (!AT) { $('#d-card').hidden = true; return; }
+  const Ld = LS.filter(desRec), Lx = Ld.filter(i => T.cj[i] >= 0).sort((a, b) => T.esp[b] - T.esp[a] || T.m[b] - T.m[a]), mx = Math.max(...AT.nac);
+  $('#d-sub').innerHTML = `Atlas Digital de Desastres no Brasil (MIDR/Defesa Civil, base S2iD 1991–2025): ${fmt(AT.nac.reduce((a, b) => a + b, 0))} desastres que afetam rodovias em ${fmt(AT.municipios)} municípios de 2021 a 2025, com ${fmt(AT.mortos)} mortes registradas nos próprios desastres. <span class="fonte">Real · Defesa Civil e PRF</span>`;
+  $('#d-kpi').innerHTML = `<div style="border-color:#a78bfa66"><b style="color:#a78bfa">${fmt(Ld.length)} trechos</b><span>em municípios com desastre recorrente (6 ou mais dos 10 anos de 2016 a 2025), com ${fmt(Ld.reduce((a, i) => a + T.m[i], 0))} mortes PRF. Nos filtros atuais.</span></div><div style="border-color:#f43f5e66"><b style="color:#f43f5e">${fmt(Lx.length)} trechos com dupla evidência</b><span>sinistros climáticos recorrentes na PRF e desastre recorrente no município: ${fmt(Lx.reduce((a, i) => a + T.m[i], 0))} mortes. Começar por eles.</span></div>`;
+  $('#d-cat').innerHTML = AT.cats.map((c, k) => `<div style="display:grid;grid-template-columns:200px 1fr 70px;gap:8px;align-items:center;margin:6px 0;font-size:13px"><span>${c}</span><div style="height:10px;background:rgba(255,255,255,.05);border-radius:5px"><div style="height:100%;width:${AT.nac[k] / mx * 100}%;background:${['#22d3ee', '#fb923c', '#cbd5e1', '#f43f5e'][k]};border-radius:5px"></div></div><span class="mono">${fmt(AT.nac[k])}</span></div>`).join('');
+  $('#d-corpo').innerHTML = Lx.slice(0, 300).map(i => `<tr class="cl" data-i="${i}"><td><b>${nome(i)}</b><div class="sub">${esc(T.mun[i])} (${T.uf[i]})</div></td><td class="sub">${AT.dz[i] ? AT.cats.map((c, k) => AT.dz[i][k] ? `${c.split(',')[0].split(' e ')[0]}: ${AT.dz[i][k]}` : '').filter(Boolean).join(' · ') : '–'}</td><td class="n mono">${AT.za[i]}</td><td class="n mono">${T.m[i]}</td><td>${esc(gestorCurto(i))}</td></tr>`).join('') || '<tr><td colspan="5" class="vazio">Nenhum trecho com dupla evidência nos filtros atuais.</td></tr>';
+  $$('#d-corpo tr.cl').forEach(tr => tr.onclick = () => abrirTrecho(+tr.dataset.i));
+  if (!AD) return;
+  const La = LS.filter(adAlto), Lt = LS.filter(i => adAlto(i) && desRec(i) && T.cj[i] >= 0).sort((a, b) => T.esp[b] - T.esp[a] || T.m[b] - T.m[a]);
+  const nc = [0, 0, 0, 0, 0], mc = [0, 0, 0, 0, 0]; for (const i of LS) { const c = adC(i); if (c >= 0) { nc[c]++; mc[c] += T.m[i]; } }
+  const mxm = Math.max(...mc, 1), totm = mc.reduce((a, b) => a + b, 0) || 1;
+  $('#a-sub').innerHTML = `Indicador 60041 do AdaptaBrasil (MCTI/INPE): risco de impacto de inundações, enxurradas e alagamentos no município, com a chuva intensa projetada para ${AD.ano} no cenário ${AD.cenario}. Mostra onde o problema climático tende a crescer; não é medida da via. <span class="fonte">Real · AdaptaBrasil, Defesa Civil e PRF</span>`;
+  $('#a-kpi').innerHTML = `<div style="border-color:#fb923c66"><b style="color:#fb923c">${fmt(La.length)} trechos · ${Math.round(La.reduce((a, i) => a + T.m[i], 0) / totm * 100)}% das mortes</b><span>em municípios com risco alto ou muito alto de inundação em ${AD.ano} (${fmt(La.reduce((a, i) => a + T.m[i], 0))} mortes PRF). Nos filtros atuais.</span></div><div style="border-color:#f43f5e66"><b style="color:#f43f5e">${fmt(Lt.length)} trechos com três evidências</b><span>passado (PRF e Defesa Civil) e futuro (AdaptaBrasil) apontam o mesmo lugar: ${fmt(Lt.reduce((a, i) => a + T.m[i], 0))} mortes. Prioridade máxima de adaptação.</span></div>`;
+  $('#a-cls').innerHTML = AD.classes.map((t, k) => `<div style="display:grid;grid-template-columns:100px 1fr 240px;gap:8px;align-items:center;margin:6px 0;font-size:13px"><span>${t}</span><div style="height:10px;background:rgba(255,255,255,.05);border-radius:5px"><div style="height:100%;width:${mc[k] / mxm * 100}%;background:${CORAD[k]};border-radius:5px"></div></div><span class="mono">${fmt(nc[k])} trechos · ${fmt(mc[k])} mortes</span></div>`).join('');
+  $('#a-acoes').innerHTML = [['Drenagem e bueiros dimensionados para a chuva projetada', 'Gestor da via (DNIT ou concessionária)'], ['Elevação de greide e proteção de aterros nos pontos de alagamento', 'Gestor da via'], ['Monitoramento e protocolo de interdição preventiva com aviso ao motorista', 'Defesa Civil, PRF e gestor da via'], ['Rota alternativa sinalizada para os dias de alerta', 'Gestor da via e PRF']]
+    .map(([a, d]) => `<div class="al"><b>${a}</b><div class="donos"><span class="dono">${d}</span></div></div>`).join('') + '<p class="sub" style="margin-top:6px">Ações de adaptação sem custo e vidas estimados no painel: não há referência publicada de efeito sobre mortes.</p>';
+  $('#a-corpo').innerHTML = Lt.slice(0, 300).map(i => `<tr class="cl" data-i="${i}"><td><b>${nome(i)}</b><div class="sub">${esc(T.mun[i])} (${T.uf[i]})</div></td><td><span style="color:${CORAD[adC(i)]}">●</span> ${AD.classes[adC(i)]} (${f1(AD.v[i])})</td><td class="n mono">${AT.za[i]}</td><td class="n mono">${T.m[i]}</td><td><div class="donos" style="margin:0"><span class="dono lid">Defesa Civil</span><span class="dono">${esc(gestorCurto(i))}</span><span class="dono">PRF</span></div></td></tr>`).join('') || '<tr><td colspan="5" class="vazio">Nenhum trecho com as três evidências nos filtros atuais.</td></tr>';
+  $$('#a-corpo tr.cl').forEach(tr => tr.onclick = () => abrirTrecho(+tr.dataset.i)); }
+// ---------- ALERTA climático (pop-up) ----------
+function alertas() {
+  const vivos = (D.alertas || []);  // alertas oficiais do INMET gravados pela atualização automática
+  const mes = new Date().getMonth(), prox = [mes, (mes + 1) % 12];
+  const saz = []; for (let i = 0; i < N; i++) if (T.cj[i] >= 0) { const jan = [T.cj[i], (T.cj[i] + 1) % 12, (T.cj[i] + 2) % 12]; if (prox.some(m => jan.includes(m))) saz.push(i); }
+  saz.sort((a, b) => T.m[b] - T.m[a]); return {vivos, saz}; }
+function mostrarAlerta(auto) {
+  const {vivos, saz} = alertas(); $('#n-alerta').textContent = vivos.length + saz.length;
+  if (auto && !vivos.length && !saz.length) return;
+  $('#al-tit').textContent = vivos.length ? `${vivos.length} alertas oficiais do INMET sobre trechos críticos` : `${fmt(saz.length)} trechos entram na época de risco climático`;
+  $('#al-sub').textContent = vivos.length ? 'Alertas ativos cruzados com o histórico de mortes da PRF.' : `Histórico real da PRF: nestes trechos, sinistros com chuva, neblina, fumaça ou deslizamento se repetem em ${MESES[new Date().getMonth()]} e no mês seguinte há pelo menos 4 anos.`;
+  $('#al-lista').innerHTML = (vivos.length ? vivos.map(v => `<div class="al"><b>${esc(v.titulo)}</b><div class="sub">${esc(v.texto)}</div></div>`) : saz.slice(0, 12).map(i => { const cc = T.cc[i], k = cc.indexOf(Math.max(...cc)), C = CLIMA[k];
+    return `<div class="al"><b>${nome(i)} · ${esc(T.mun[i])}</b> <span class="sub">${C.nome} · ${T.m[i]} mortes desde 2021</span><div class="sub" style="margin-top:3px">${C.acao}</div><div class="donos"><span class="dono lid">Líder: ${C.lider}</span>${C.com.map(c => `<span class="dono">${esc(viaDono(c, i))}</span>`).join('')}</div></div>`; })).join('') +
+   `<div style="margin-top:14px;display:flex;gap:10px"><button class="btn" type="button" onclick="document.getElementById('alerta').hidden=true;F.clima=true;F.des=F.ad=F.alta=false;document.getElementById('f-rec').value='clima';aplicar();irPara('clima')">Ver todos no mapa de clima →</button></div>`;
+  $('#alerta').hidden = false; }
+$('#abrir-alerta').onclick = () => mostrarAlerta(false);
+// ---------- IA generativa ----------
+let sampleFn = null;
+if (window.claude && claude.use) claude.use('sample').then(f => sampleFn = f).catch(() => {});
+// Parecer automático (regras do painel, sem IA generativa): funciona em qualquer lugar, inclusive no arquivo offline
+const pct = (a, b) => Math.round(a / Math.max(1, b) * 100) + '%', escopo = () => { const f = []; if (F.uf) f.push(UFN[F.uf] || F.uf); if (F.br) f.push('BR-' + String(F.br).padStart(3, '0')); if (F.gestor) f.push(F.gestor === 'dnit' ? 'malha do DNIT' : F.gestor === 'conc' ? 'concessões federais' : CONC[+F.gestor.slice(2)]); return f.length ? f.join(', ') : 'rodovias federais de todo o país'; };
+function parecerVisao() {
+  const tot = LS.reduce((a, i) => a + T.m[i], 0), esp = LS.reduce((a, i) => a + T.esp[i], 0), P = montarPlano(orcamento() * 1e6), pr = projetar(LS, P.vidas);
+  const crit = LS.filter(i => nivel(i) === 3).length, n20 = Math.max(1, Math.round(LS.length * .2)), m20 = [...LS].sort((a, b) => T.m[b] - T.m[a]).slice(0, n20).reduce((a, i) => a + T.m[i], 0);
+  const mecs = MEC.map((m, k) => [k, LS.reduce((a, i) => a + T.med[i][k], 0)]).sort((a, b) => b[1] - a[1]), mm = mecs[0][0];
+  const top = [...LS].sort((a, b) => T.esp[b] - T.esp[a]).slice(0, 3), dn = LS.filter(i => !eConc(i)).reduce((a, i) => a + T.esp[i], 0);
+  const tri = AD && AT ? LS.filter(i => adAlto(i) && duplo(i)).length : 0;
+  return [`Situação (${escopo()}). A PRF registrou ${fmt(tot)} mortes de janeiro de 2021 a outubro de 2026, em ${fmt(LS.length)} trechos de 5 km. Se nada mudar, são esperadas ${fmt(esp)} mortes nos próximos 12 meses; ${fmt(crit)} trechos estão em nível crítico. A tendência é de ${pr.b >= 0 ? 'alta' : 'queda'}: ${fmt(pr.p26)} mortes em 2026 e ${fmt(pr.tend[3])} em 2030.`,
+   `Onde agir. ${pct(m20, tot)} das mortes estão em 20% dos trechos (${fmt(n20)}). A causa que mais mata é ${MEC[mm].nome.toLowerCase()} (${pct(mecs[0][1], tot)}), e a medida de maior efeito é ${(MED.find(m => m.mec === mm)?.nome || 'fiscalização e engenharia').toLowerCase()}. Os três trechos de maior risco são ${top.map(i => `${nome(i)}, em ${T.mun[i]}`).join('; ')}.`,
+   `O que fazer e quanto custa. Com orçamento de ${rs(orcamento() * 1e6)}, o plano recomendado investe ${rs(P.gasto)} em ${fmt(P.trechos)} trechos e salva cerca de ${fmt(P.vidas)} vidas por ano (estimativa), levando 2030 a ${fmt(pr.plano[3])} mortes nestes trechos.`,
+   `Quem age. DNIT responde por ${pct(dn, esp)} das mortes esperadas e as concessionárias federais, fiscalizadas pela ANTT, por ${pct(esp - dn, esp)}. A PRF atua na fiscalização${tri ? `; ${fmt(tri)} trechos reúnem sinistros climáticos recorrentes, desastre recorrente e risco alto de inundação em 2050, e pedem ação conjunta com a Defesa Civil` : ''}.`,
+   `Próximo passo. Encaminhar ao DNIT e à ANTT a lista dos trechos prioritários com a ação, o custo e o responsável de cada um, e acompanhar no painel a redução das mortes esperadas a cada atualização.`].join('\n\n'); }
+function parecerPlano() {
+  const P = planoAtual; if (!P) return ''; const por = {}; for (const a of P.acoes) { const d = donoMed(a.m, a.i); por[d] = por[d] || [0, 0]; por[d][0] += a.custo; por[d][1] += a.vidas; }
+  const med = {}; for (const a of P.acoes) { med[a.m.nome] = (med[a.m.nome] || 0) + a.vidas; }
+  const top = [...P.acoes].sort((a, b) => b.vidas - a.vidas).slice(0, 3), esp = LS.reduce((a, i) => a + T.esp[i], 0);
+  return [`Plano. Com ${rs(orcamento() * 1e6)}, o critério "${modoPlano() === 'custo' ? 'máximo de vidas por real' : 'trechos mais críticos primeiro'}" seleciona ${fmt(P.acoes.length)} ações em ${fmt(P.trechos)} trechos, com investimento de ${rs(P.gasto)} e cerca de ${fmt(P.vidas)} vidas salvas por ano (estimativa), ${pct(P.vidas, esp)} das mortes esperadas nestes trechos.`,
+   `Medidas. ${Object.entries(med).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([m, v]) => `${m}: ${f1(v)} vidas por ano`).join('; ')}.`,
+   `Responsáveis. ${Object.entries(por).sort((a, b) => b[1][1] - a[1][1]).slice(0, 4).map(([d, [c, v]]) => `${d}: ${rs(c)} e ${f1(v)} vidas por ano`).join('; ')}.`,
+   `Primeiras ações. ${top.map(a => `${a.m.nome} em ${nome(a.i)} (${T.mun[a.i]}), ${rs(a.custo)}, ${f1(a.vidas)} vidas por ano`).join('; ')}.`,
+   `Próximo passo. Validar os custos com o CMG e o SICRO vigentes, incluir as ações no planejamento do DNIT e nos planos de investimento das concessões via ANTT, e medir o resultado pelas mortes de cada trecho tratado.`].join('\n\n'); }
+function parecerTrecho(i) {
+  const A = ACO[i], mp = mecPrin(i), cau = T.cau[i][0], a = principal(i);
+  return [`${nome(i)}, em ${T.mun[i]} (${T.uf[i]}). Responsável: ${gestor(i)}. Foram ${T.m[i]} mortes de 2021 a outubro de 2026 (por ano: ${T.ano[i].join(', ')}); são esperadas ${f1(T.esp[i])} mortes nos próximos 12 meses, nível ${NIV[nivel(i)].t.toLowerCase()}.`,
+   `Como se morre. Predomina ${MEC[mp].nome.toLowerCase()} (${T.med[i][mp]} mortes)${cau ? `; o motivo mais registrado pela PRF é ${D.causas[cau[0]].toLowerCase()}` : ''}.`,
+   a ? `Ação recomendada. ${a.m.nome}: ${rs(a.custo)}, cerca de ${f1(a.vidas)} vidas por ano, a cargo de ${donoMed(a.m, i)}.${A.find(x => x.m.id === 'radar') && a.m.id !== 'radar' ? ` Ganho rápido: radar, ${rs(A.find(x => x.m.id === 'radar').custo)} até 2030.` : ''}` : '',
+   T.cj[i] >= 0 ? `Clima. Sinistros climáticos se repetem de ${MESES[T.cj[i]]} a ${MESES[(T.cj[i] + 2) % 12]}; protocolo com Defesa Civil, PRF e o responsável pela via.` : ''].filter(Boolean).join('\n\n'); }
+async function parecer(alvo, dados, palavras = 170, local) {
+  const el = $(alvo); el.hidden = false;
+  if (!sampleFn) { el.innerHTML = `<span class="fonte">Parecer automático do painel · regras e dados do BAI</span><div style="white-space:pre-line;margin-top:8px">${esc(local ? local() : '')}</div>`; return; }
+  el.textContent = 'Escrevendo o parecer…';
+  const pedido = `Você é a IA do pAInel Sentinela BR, do Ministério dos Transportes. Escreva em português do Brasil, sem títulos markdown, em até ${palavras} palavras, um parecer executivo para subsecretários: o problema, a projeção, as ações recomendadas (onde, quanto custa, quantas vidas salva, quem é o dono) e o próximo passo. Use SOMENTE os dados abaixo; não invente números; diga que custos e vidas são estimativas.\n\n${dados}`;
+  try { const r = await sampleFn(pedido, {onText: ({text}) => el.textContent = text}); el.innerHTML = `<span class="fonte">Parecer com IA generativa · só com os dados do painel</span><div style="white-space:pre-line;margin-top:8px">${esc(r.text)}</div>`; } catch { el.innerHTML = `<span class="fonte">Parecer automático do painel · IA generativa indisponível agora</span><div style="white-space:pre-line;margin-top:8px">${esc(local ? local() : '')}</div>`; } }
+$('#ia-visao').onclick = () => parecer('#par-visao', $('#insights').innerText + `\nFiltros: ${JSON.stringify(F)}.`, 170, parecerVisao);
+$('#ia-plano').onclick = () => { const P = planoAtual; if (!P) return; parecer('#par-plano', `Orçamento ${rs(orcamento() * 1e6)}. Selecionadas ${P.acoes.length} ações em ${P.trechos} trechos; custo ${rs(P.gasto)}; ${f1(P.vidas)} vidas salvas por ano. Por responsável: ${$('#p-dono').innerText.replace(/\n/g, ' | ')}. Por medida: ${$('#p-med').innerText.replace(/\n/g, ' | ')}. Primeiras ações: ${P.acoes.slice(0, 8).map(a => `${nome(a.i)} ${T.mun[a.i]}: ${a.m.nome}, ${rs(a.custo)}, ${f1(a.vidas)} vidas/ano, dono ${donoMed(a.m, a.i)}`).join(' | ')}.`, 170, parecerPlano); };
+// ---------- estáticos ----------
+function estaticos() {
+  const g = new Date(D.gerado), p = n => String(n).padStart(2, '0');
+  $('#dt-atual').textContent = `${p(g.getDate())}/${p(g.getMonth() + 1)}/${g.getFullYear()} ${p(g.getHours())}:${p(g.getMinutes())}`;
+  $('#lista-fontes').innerHTML = FONTES.map(([a, o, , s]) => `<li><b>${esc(a)}</b> · ${esc(o)}${s.startsWith('A integrar') ? ' <span style="color:#fbbf24">(a integrar)</span>' : ''}</li>`).join('');
+  $('#t-fontes').innerHTML = FONTES.map(([a, o, u, s, l]) => `<tr><td><b>${esc(a)}</b></td><td>${esc(o)}</td><td>${esc(u)}</td><td><span class="niv" style="background:${s.startsWith('Integrada') ? 'rgba(52,211,153,.15);color:#34d399' : 'rgba(251,191,36,.15);color:#fbbf24'}">${esc(s.toUpperCase())}</span></td><td>${l ? `<a href="${l}" target="_blank" rel="noopener">abrir ↗</a>` : '–'}</td></tr>`).join('');
+  $('#t-med').innerHTML = MED.map(m => `<tr><td><b>${esc(m.nome)}</b></td><td>${esc(m.quando)}</td><td><span class="mono">${rs(m.custo)}</span><div class="sub">${esc(m.custoTxt)}</div></td><td>${esc(m.fCusto)}</td><td class="mono">−${Math.round(m.efic * 100)}%</td><td>${esc(m.fEf)}</td></tr>`).join('');
+  $('#metodo').innerHTML = `<p><b>Trecho:</b> rodovia, UF e quilômetro em blocos de 5 km, a partir das coordenadas e do km de cada sinistro da PRF (jan/2021 a out/2026, 2026 parcial).</p>
+   <p><b>Mortes esperadas (preditiva):</b> média por Bayes empírico, que combina o histórico do trecho com o padrão da malha para não exagerar trechos com poucos anos. É a base do ranking e das vidas salvas.</p>
+   <p><b>Projeção nacional:</b> 2026 completado pela fração de mortes que ocorre de janeiro a outubro nos anos anteriores (${f1(D.nac.fracJanOut * 100)}%); 2027–2030 por tendência linear 2021–2026. Cenário com plano: tendência menos as vidas salvas (metade em 2027, implantação).</p>
+   <p><b>Vidas salvas:</b> mortes esperadas no trecho × participação do tipo de sinistro que a medida ataca × eficácia publicada. Radar atua sobre todas as mortes do trecho com o piso de 20%.</p>
+   <p><b>Plano de ação:</b> critério padrão: entre todas as ações possíveis nos trechos filtrados, escolhe primeiro as de menor custo por vida salva, até o orçamento; uma segunda medida no mesmo trecho só conta sobre o risco que sobrou. Critério alternativo: trechos em ordem de risco, cada um com o pacote de medidas que custam até R$ 20 milhões por vida salva por ano.</p>
+   <p><b>Responsável:</b> cada trecho de 5 km é atribuído a uma única concessionária quando o seu km está dentro de um trecho concedido da base oficial da ANTT (BR, UF, km inicial e final, arquivo 8/2026); quando dois contratos se sobrepõem, vale o mais recente. Fora desses intervalos, o responsável é o DNIT (administração direta). Rodovias federais delegadas a estados não constam da base da ANTT. PRF fiscaliza; Defesa Civil lidera os eventos climáticos.</p>
+<p><b>Pavimento (ICM):</b> Índice de Condição da Manutenção do DNIT, levantamentos de dez/2021, dez/2022, dez/2023, dez/2024, 2025 (acumulado até dez) e out/2026, só pista pavimentada. ICM = 0,7 × índice de pavimento + 0,3 × índice de conservação. Em cada km vale o pior sentido; no trecho de 5 km, a média dos km avaliados. Faixas oficiais: Bom abaixo de 30, Regular de 30 a 50, Ruim de 50 a 70, Péssimo a partir de 70. Aplica-se só à malha do DNIT; km concedidos ficam fora.</p>
+   <p><b>Risco climático recorrente:</b> trecho com pelo menos 8 sinistros com chuva, neblina, fumaça, vento ou deslizamento, concentrados na mesma janela de 3 meses (1,3 vez acima do normal do trecho) em pelo menos 4 dos 5 anos completos.</p>
+   <p><b>Desastres (Defesa Civil):</b> Atlas Digital de Desastres no Brasil, base S2iD consolidada de 1991 a 2025 (v1.1, ago/2026). Entram só os desastres que afetam rodovias: chuvas intensas, enxurradas, inundações, alagamentos, movimento de massa, erosão, vendavais, granizo, tornado e incêndio florestal. Cada trecho recebe os desastres do seu município. <b>Desastre recorrente</b>: município com desastre em pelo menos 6 dos 10 anos de 2016 a 2025.</p>
+   <p><b>Risco futuro (AdaptaBrasil):</b> indicador 60041 do MCTI/INPE, risco de impacto de inundações, enxurradas e alagamentos por município, combinando ameaça climática (chuva intensa em 1 e 5 dias), geomorfologia, uso do solo, vulnerabilidade e exposição; exportação para 2050 no cenário pessimista. Cada trecho recebe a classe do seu município. <b>Três evidências</b>: risco climático recorrente na PRF, desastre recorrente na Defesa Civil e risco alto ou muito alto em 2050.</p>
+   <p><b>Atualização:</b> rotina em Python às 8h, 14h e 18h (Brasília) baixa as bases conectadas, recalcula o painel e grava data e hora.</p>`;
+
+  }
+// ---------- início ----------
+const L_ = window.L;
+$$('nav.abas button').forEach(b => b.onclick = () => irPara(b.dataset.v));
+{ const b0 = $('nav.abas button[aria-selected=true]'); $('#tv-ico').innerHTML = b0.querySelector('svg').outerHTML; }
+try { if (localStorage.getItem('sentinela-menu') === 'mini') document.body.classList.add('mini'); } catch {}
+$('#recolher').onclick = () => { const mini = window.innerWidth <= 1250 && !document.body.classList.contains('largo') && !document.body.classList.contains('mini') ? false : !document.body.classList.contains('mini'); if (window.innerWidth <= 1250) { document.body.classList.toggle('largo'); document.body.classList.remove('mini'); } else { document.body.classList.toggle('mini', mini); try { localStorage.setItem('sentinela-menu', mini ? 'mini' : 'largo'); } catch {} } setTimeout(() => { mapa && mapa.invalidateSize(); mapaT && mapaT.invalidateSize(); }, 250); };
+$('#r-ord').addEventListener('change', desenharRanking);
+estaticos(); ligarFiltros(); aplicar();
+setTimeout(() => mostrarAlerta(true), 900);
+window.__sentinela = {F, aplicar, abrirTrecho, irPara, montarPlano, LS: () => LS};
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+// 1) Texto do selo (use num cartão ou como título do botão)
+Atualizado em =
+VAR t = MAX ( Atualizacao[DataHora] )
+RETURN "⟳ Atualizado em " & FORMAT ( t, "dd/MM/yyyy" ) & " às " & FORMAT ( t, "HH:mm" )
+
+// 2) Dica com todas as fontes (Botão > Ação > Dica de ferramenta > fx > Valor do campo > esta medida)
+Fontes do painel =
+"Fontes: PRF – sinistros por ocorrência (jan/2021 a out/2026); "
+    & "Ministério da Saúde – SIM, óbitos CID-10 V01–V89 (2010–2025, 2025 preliminar); "
+    & "IBGE – estimativas de população 2024 e 2025; "
+    & "Senatran – frota de veículos dez/2024; "
+    & "ANTT – trechos concedidos (km inicial e final), arquivo 8/2026; DNIT – ICM, condições do pavimento 2021 a out/2026; MIDR/Defesa Civil – Atlas Digital de Desastres (S2iD 1991–2025); MCTI/INPE – AdaptaBrasil, inundações 2050 (cenário pessimista); "
+    & "DNIT – SICRO abr/2026, CMG e PNCV (custos); "
+    & "FHWA (EUA) e Trafikverket (Suécia) – eficácia das medidas; "
+    & "Atualização automática às 8h, 14h e 18h."
+
+// 3) Indicadores úteis
+Mortes = SUM ( fato_mortes_ano[mortes] )
+Mortes esperadas 12m = SUM ( dim_trecho[mortes_esperadas_12m] )
+Vidas salvas/ano (ações) = SUM ( fato_acao_ia[vidas_ano] )
+Custo das ações = SUM ( fato_acao_ia[custo_rs] )

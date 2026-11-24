@@ -1,0 +1,10 @@
+{
+  "name": "sentinela-br-assets",
+  "private": true,
+  "description": "Bibliotecas embutidas no painel e no app (mapa e fontes tipográficas)",
+  "dependencies": {
+    "leaflet": "1.9.4",
+    "@fontsource/overpass": "^5.0.0",
+    "@fontsource/jetbrains-mono": "^5.0.0"
+  }
+}

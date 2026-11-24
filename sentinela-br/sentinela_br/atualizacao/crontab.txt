@@ -1,0 +1,5 @@
+# pAInel Sentinela BR · servidor Linux (fuso America/Sao_Paulo)
+CRON_TZ=America/Sao_Paulo
+SENTINELA_BASE=/home/claude
+0 8,14,18 * * *  cd /home/claude/sentinela_br/atualizacao && /usr/bin/python3 atualizar.py >> log_cron.txt 2>&1
+30 * * * *       cd /home/claude/sentinela_br/atualizacao && /usr/bin/python3 monitor_alertas.py >> log_cron.txt 2>&1

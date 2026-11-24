@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
+<title>Sentinela BR · Rota Segura (protótipo do app do motorista)</title>
+<style>
+__FONTS__
+__LEAFLET_CSS__
+:root{--bg:#05070d;--c1:#0a101c;--c2:#0e1626;--ln:#1a2740;--ln2:#25385a;--tx:#e8f1ff;--sub:#8ea3c0;--ci:#22d3ee;--ci2:#67e8f9;--vd:#34d399;--am:#fbbf24;--lr:#fb923c;--vm:#f43f5e;--mg:#e879f9}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:radial-gradient(1200px 700px at 50% -10%,#0c1a33 0%,#05070d 60%) fixed;color:var(--tx);font-family:Overpass,system-ui,sans-serif;overflow:hidden}
+.mono{font-family:'JetBrains Mono',monospace}
+/* palco (PC) */
+#palco{height:100%;display:flex;align-items:center;justify-content:center;gap:56px}
+#lado{max-width:390px}
+#lado .marca{font-size:13px;letter-spacing:.18em;color:var(--sub);text-transform:uppercase}
+#lado h1{font-size:34px;line-height:1.1;margin:10px 0 12px}
+#lado h1 b{background:linear-gradient(90deg,#22d3ee,#e879f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+#lado p{color:var(--sub);font-size:15px;line-height:1.5}
+#lado .tag{display:inline-block;margin-top:16px;border:1px solid var(--ln2);border-radius:99px;padding:5px 12px;font-size:12px;color:var(--ci2)}
+#fone{position:relative;width:390px;height:844px;border-radius:56px;padding:12px;background:linear-gradient(145deg,#2a3346,#0b0f18 40%,#1b2232);box-shadow:0 0 0 2px #39445c,0 0 60px rgba(34,211,238,.18),0 30px 80px rgba(0,0,0,.7);transform-origin:center center;flex:none}
+#fone:before{content:'';position:absolute;right:-4px;top:180px;width:4px;height:90px;border-radius:2px;background:#39445c}
+#tela{position:relative;width:100%;height:100%;border-radius:44px;overflow:hidden;background:var(--bg)}
+#ilha{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:118px;height:34px;border-radius:20px;background:#000;z-index:50}
+#status{position:absolute;top:0;left:0;right:0;height:52px;display:flex;justify-content:space-between;align-items:center;padding:6px 30px 0 34px;font-size:15px;font-weight:700;z-index:40;pointer-events:none}
+#status .ic{display:flex;gap:6px;align-items:center;font-size:12px}
+.bat{width:24px;height:12px;border:1.5px solid #e8f1ff;border-radius:3px;position:relative}.bat:after{content:'';position:absolute;inset:1.5px;right:5px;background:#e8f1ff;border-radius:1px}
+@media (max-width:640px){#palco{display:block}#lado{display:none}#fone{width:100%;height:100%;border-radius:0;padding:0;box-shadow:none;transform:none!important}#fone:before,#ilha{display:none}#tela{border-radius:0}#status{display:none}.app{padding-top:14px!important}}
+/* app */
+.app{position:absolute;inset:0;display:flex;flex-direction:column;padding-top:54px}
+.scr{position:absolute;inset:0;padding-top:54px;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .25s}
+.scr.on{opacity:1;pointer-events:auto}
+.scr:not(.on),.scr:not(.on) *{pointer-events:none!important}
+.pad{padding:8px 20px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px}
+.logo i{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#0891b2,#7c3aed);box-shadow:0 0 16px rgba(34,211,238,.45);font-style:normal;font-size:15px}
+.logo small{display:block;font-size:10.5px;color:var(--sub);font-weight:600;letter-spacing:.08em}
+h2{font-size:26px;line-height:1.15;margin:18px 0 4px}
+.sub{color:var(--sub);font-size:13.5px;line-height:1.4}
+label.l{display:block;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin:14px 0 6px}
+.campo{display:flex;align-items:center;gap:10px;background:var(--c2);border:1px solid var(--ln2);border-radius:16px;padding:0 14px;height:52px}
+.campo .pt{width:10px;height:10px;border-radius:50%;flex:none}
+.campo input{flex:1;background:none;border:0;outline:0;color:var(--tx);font:inherit;font-size:16px;min-width:0}
+.campo:focus-within{border-color:var(--ci);box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+.cx{position:relative}.limpa{background:none;border:0;color:var(--sub);font-size:22px;cursor:pointer;padding:0 2px;display:none}.cx.tem .limpa{display:block}
+.lista{position:absolute;left:-1px;right:-1px;top:56px;max-height:330px;overflow:auto;background:#0b1322;border:1px solid var(--ci);border-radius:14px;z-index:30;display:none;box-shadow:0 18px 40px rgba(0,0,0,.6)}.lista.on{display:block}
+.lista .it{padding:10px 14px;border-bottom:1px solid var(--ln);cursor:pointer;font-size:15px;display:flex;justify-content:space-between;gap:8px}.lista .it:hover,.lista .it.sel{background:rgba(34,211,238,.12)}.lista .it span{color:var(--sub);font-size:12.5px;white-space:nowrap}.lista .gr{padding:8px 14px 4px;font-size:11px;letter-spacing:.1em;color:var(--ci2);text-transform:uppercase;background:#0b1322;position:sticky;top:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1px solid var(--ln2);background:var(--c1);color:var(--tx);border-radius:99px;padding:8px 13px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip.on{border-color:var(--ci);background:rgba(34,211,238,.12);color:var(--ci2)}
+.btn{width:100%;height:56px;border:0;border-radius:18px;font:inherit;font-size:17px;font-weight:800;color:#fff;background:linear-gradient(90deg,#0891b2,#7c3aed);box-shadow:0 0 24px rgba(34,211,238,.3);cursor:pointer}
+.btn.sec{background:var(--c2);border:1px solid var(--ln2);box-shadow:none;color:var(--ci2)}
+.btn:disabled{opacity:.5}
+.rodape{margin-top:auto;padding:10px 20px 26px}
+.nav{display:flex;justify-content:space-around;border-top:1px solid var(--ln);padding:10px 0 26px;background:rgba(5,7,13,.92)}
+.nav button{background:none;border:0;color:var(--sub);font:inherit;font-size:11.5px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.nav button.on{color:var(--ci2)}.nav button span{font-size:19px}
+.err{color:#fda4af;font-size:13px;margin-top:8px;min-height:18px}
+/* mapa */
+#mapa{position:absolute;inset:0;background:#060b14;z-index:1}
+.leaflet-container{background:#060b14;font-family:inherit}
+.sobre{position:relative;z-index:5}
+.topo{position:absolute;top:54px;left:12px;right:12px;z-index:6}
+.base{position:absolute;left:10px;right:10px;bottom:24px;z-index:6}
+.card{background:rgba(10,16,28,.94);border:1px solid var(--ln2);border-radius:20px;padding:14px 16px;backdrop-filter:blur(8px)}
+.voltar{background:rgba(10,16,28,.9);border:1px solid var(--ln2);color:var(--tx);border-radius:12px;height:38px;padding:0 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.rota{border:1px solid var(--ln2);border-radius:16px;padding:12px 14px;margin-top:8px;cursor:pointer;background:var(--c1)}
+.rota.on{border-color:var(--vd);box-shadow:0 0 0 1px var(--vd) inset,0 0 18px rgba(52,211,153,.18)}
+.rota.on.rap{border-color:#60a5fa;box-shadow:0 0 0 1px #60a5fa inset}
+.rota .h{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+.rota .sel{font-size:10.5px;font-weight:800;letter-spacing:.08em;border-radius:99px;padding:3px 8px}
+.nums{display:flex;gap:14px;margin-top:6px;font-size:13px;color:var(--sub)}.nums b{color:var(--tx);font-size:15px}
+.ganho{margin-top:8px;font-size:13px;color:#a7f3d0}
+/* navegação */
+.instr{display:flex;gap:12px;align-items:center;background:linear-gradient(90deg,#065f46,#0e7490);border-radius:20px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.instr .seta{font-size:30px;line-height:1}
+.instr b{font-size:19px;display:block}.instr span{font-size:13px;opacity:.9}
+.painelnav{display:flex;justify-content:space-between;align-items:center}
+.painelnav .v{font-size:34px;font-weight:800;line-height:1}.painelnav small{display:block;color:var(--sub);font-size:11.5px}
+.ctrl{display:flex;gap:8px;margin-top:10px}
+.ctrl button{flex:1;height:40px;border-radius:12px;border:1px solid var(--ln2);background:var(--c2);color:var(--tx);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ctrl button.on{border-color:var(--ci);color:var(--ci2)}
+.ctrl .fim{color:#fda4af;border-color:#7f1d1d}
+#alerta{position:absolute;left:10px;right:10px;top:150px;z-index:8;border-radius:22px;padding:16px;background:linear-gradient(160deg,rgba(127,29,29,.96),rgba(30,10,20,.96));border:1px solid #f43f5e;box-shadow:0 0 40px rgba(244,63,94,.45);transform:translateY(-12px);opacity:0;transition:.3s;pointer-events:none}
+#alerta.on{opacity:1;transform:none}
+#alerta.medio{background:linear-gradient(160deg,rgba(120,53,15,.96),rgba(30,18,8,.96));border-color:#fb923c;box-shadow:0 0 40px rgba(251,146,60,.4)}
+#alerta .t{font-size:11.5px;letter-spacing:.12em;font-weight:800;color:#fecdd3}
+#alerta b{display:block;font-size:19px;margin:4px 0}
+#alerta .m{font-size:14px;line-height:1.4}
+#alerta .d{margin-top:8px;font-size:14px;font-weight:700;color:#fde68a}
+.carro{width:26px;height:26px;border-radius:50%;background:#22d3ee;border:3px solid #fff;box-shadow:0 0 0 6px rgba(34,211,238,.25),0 0 20px #22d3ee}
+.prox{font-size:12.5px;color:var(--sub);margin-top:8px;border-top:1px solid var(--ln);padding-top:8px}
+.prox b{color:#fda4af}
+/* chegada / info */
+.scroll{overflow:auto;flex:1;padding:6px 20px 20px}
+.kpi3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.kpi3 div{background:var(--c1);border:1px solid var(--ln2);border-radius:14px;padding:10px;text-align:center}.kpi3 b{display:block;font-size:22px}.kpi3 span{font-size:11px;color:var(--sub)}
+.pontos{margin-top:14px;border-radius:20px;padding:16px;background:linear-gradient(135deg,rgba(8,145,178,.25),rgba(124,58,237,.25));border:1px solid #4c3a8f;text-align:center}
+.pontos b{font-size:40px;display:block;background:linear-gradient(90deg,#67e8f9,#f0abfc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ben{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--ln2);border-radius:14px;padding:10px 12px;margin-top:8px;background:var(--c1)}
+.ben i{font-style:normal;font-size:20px}.ben b{font-size:14px}.ben p{font-size:12.5px;color:var(--sub);margin-top:2px;line-height:1.35}
+.st{font-size:10px;font-weight:800;letter-spacing:.08em;border-radius:99px;padding:2px 7px;margin-left:6px;vertical-align:1px}
+.st.ok{background:rgba(52,211,153,.15);color:#6ee7b7}.st.pr{background:rgba(232,121,249,.15);color:#f0abfc}
+.passo{border-left:2px solid var(--ci);padding:2px 0 2px 12px;margin-top:14px}.passo b{font-size:15px}.passo p{font-size:13px;color:var(--sub);line-height:1.45;margin-top:3px}
+.fonte{font-size:11.5px;color:var(--sub);margin-top:16px;line-height:1.45}
+</style>
+</head>
+<body>
+<div id="palco">
+ <div id="lado">
+  <div class="marca">Ministério dos Transportes · Equipe 4 · Innovathon</div>
+  <h1>Sentinela BR<br><b>Rota Segura</b></h1>
+  <p>Protótipo do aplicativo do motorista. Defina o destino, escolha a rota mais segura e receba alertas de voz com o motivo do risco antes de cada trecho perigoso.</p>
+  <p style="margin-top:10px">Dados reais da PRF, 2021 a outubro de 2026. Simulação de viagem no computador.</p>
+  <span class="tag">Tela do celular · demonstração</span>
+ </div>
+ <div id="fone"><div id="tela">
+  <div id="ilha"></div>
+  <div id="status"><span id="hora" class="mono">9:41</span><span class="ic"><span>▮▮▮▮</span><span>5G</span><span class="bat"></span></span></div>
+  <div id="mapa"></div>
+
+  <!-- 1. início -->
+  <section class="scr on" id="s-inicio" style="background:var(--bg);z-index:10">
+   <div class="pad" style="flex:1;display:flex;flex-direction:column">
+    <div class="logo"><i>◆</i><div>Sentinela BR<small>ROTA SEGURA</small></div></div>
+    <h2>Para onde vamos?</h2>
+    <p class="sub">Escolha entre os 5.571 municípios do IBGE. A rota é calculada com o histórico real de mortes nas rodovias federais.</p>
+    <label class="l" for="orig">Saindo de</label>
+    <div class="campo cx"><span class="pt" style="background:var(--ci)"></span><input id="orig" placeholder="Toque para escolher a cidade" autocomplete="off" spellcheck="false"><button class="limpa" data-l="orig" aria-label="Limpar">×</button><div class="lista" id="l-orig"></div></div>
+    <label class="l" for="dest">Destino</label>
+    <div class="campo cx"><span class="pt" style="background:var(--mg)"></span><input id="dest" placeholder="Toque para escolher a cidade" autocomplete="off" spellcheck="false"><button class="limpa" data-l="dest" aria-label="Limpar">×</button><div class="lista" id="l-dest"></div></div>
+    <div class="chips" id="sug"></div>
+    <label class="l">Veículo</label>
+    <div class="chips" id="veic"><button class="chip on" data-v="carro">🚗 Carro</button><button class="chip" data-v="moto">🏍️ Moto</button><button class="chip" data-v="onibus">🚌 Ônibus</button><button class="chip" data-v="caminhao">🚚 Caminhão</button></div>
+    <div class="err" id="erro"></div>
+    <div style="margin-top:auto;padding-bottom:12px"><button class="btn" id="ver">Ver rotas</button></div>
+   </div>
+   <div class="nav"><button class="on">
+<span>🧭</span>Viagem</button><button data-ir="s-pontos"><span>⭐</span>Meus pontos</button><button data-ir="s-info"><span>ℹ️</span>Como funciona</button></div>
+  </section>
+
+  <!-- 2. rotas -->
+  <section class="scr" id="s-rotas" style="z-index:10;pointer-events:none">
+   <div class="topo" style="display:flex;gap:8px;pointer-events:auto"><button class="voltar" data-ir="s-inicio">← Voltar</button><div class="card" style="flex:1;padding:8px 12px;font-size:13px;border-radius:12px" id="r-od"></div></div>
+   <div class="base" style="pointer-events:auto"><div class="card">
+    <div class="sub" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase">Escolha a rota</div>
+    <div id="r-lista"></div>
+    <button class="btn" id="iniciar" style="margin-top:12px">Iniciar</button>
+   </div></div>
+  </section>
+
+  <!-- 3. navegação -->
+  <section class="scr" id="s-nav" style="z-index:10;pointer-events:none">
+   <div class="topo" style="pointer-events:auto"><div class="instr"><span class="seta" id="n-seta">⬆</span><div><b id="n-via">BR-060</b><span id="n-inst">Siga em frente</span></div></div></div>
+   <div id="alerta"><div class="t" id="a-t">ATENÇÃO · TRECHO CRÍTICO</div><b id="a-tit"></b><div class="m" id="a-mot"></div><div class="d" id="a-dica"></div></div>
+   <div class="base" style="pointer-events:auto"><div class="card">
+    <div class="painelnav"><div><span class="v mono" id="n-vel">80</span><small>km/h</small></div><div style="text-align:center"><b class="mono" id="n-falta" style="font-size:19px">–</b><small>restantes</small></div><div style="text-align:right"><b class="mono" id="n-eta" style="font-size:19px">–</b><small>chegada sem paradas</small></div></div>
+    <div class="prox" id="n-prox"></div>
+    <div class="ctrl"><button id="c-vel" title="Velocidade da simulação">Simulação 1×</button><button id="c-voz" class="on">🔊 Voz</button><button class="fim" id="c-fim">Encerrar</button></div>
+   </div></div>
+  </section>
+
+  <!-- 4. chegada -->
+  <section class="scr" id="s-fim" style="background:var(--bg);z-index:10">
+   <div class="scroll">
+    <div class="logo" style="margin-top:6px"><i>◆</i><div>Sentinela BR<small>VIAGEM CONCLUÍDA</small></div></div>
+    <h2 id="f-tit">Você chegou!</h2><p class="sub" id="f-sub"></p>
+    <div class="kpi3" id="f-kpi"></div>
+    <div class="pontos"><span class="sub">Pontos de condução segura nesta viagem</span><b id="f-pts">0</b><span class="sub" id="f-ptsx"></span></div>
+    <h3 style="margin-top:18px;font-size:16px">O que os pontos podem render</h3>
+    <div id="f-ben"></div>
+    <button class="btn" style="margin-top:16px" data-ir="s-inicio">Nova viagem</button>
+   </div>
+  </section>
+
+  <!-- 5. pontos -->
+  <section class="scr" id="s-pontos" style="background:var(--bg);z-index:10">
+   <div class="scroll">
+    <div class="logo" style="margin-top:6px"><i>◆</i><div>Sentinela BR<small>MEUS PONTOS</small></div></div>
+    <h2>Bom condutor</h2><p class="sub">Pontos acumulados nas viagens com o alerta ligado.</p>
+    <div class="pontos"><span class="sub">Saldo</span><b id="p-saldo">0</b><span class="sub" id="p-viag">Nenhuma viagem ainda</span></div>
+    <h3 style="margin-top:18px;font-size:16px">Como ganhar</h3>
+    <div class="ben"><i>🛣️</i><div><b>10 pontos a cada 100 km</b><p>Viagem feita com o app aberto e alertas ligados.</p></div></div>
+    <div class="ben"><i>⚠️</i><div><b>20 pontos por alerta respeitado</b><p>Passar pelo trecho crítico abaixo do limite indicado.</p></div></div>
+    <div class="ben"><i>🛡️</i><div><b>50 pontos por escolher a rota mais segura</b><p>Quando ela desvia de trechos críticos.</p></div></div>
+    <h3 style="margin-top:18px;font-size:16px">Moeda de troca</h3>
+    <div id="p-ben"></div>
+   </div>
+   <div class="nav"><button data-ir="s-inicio"><span>🧭</span>Viagem</button><button class="on"><span>⭐</span>Meus pontos</button><button data-ir="s-info"><span>ℹ️</span>Como funciona</button></div>
+  </section>
+
+  <!-- 6. como funciona -->
+  <section class="scr" id="s-info" style="background:var(--bg);z-index:10">
+   <div class="scroll">
+    <div class="logo" style="margin-top:6px"><i>◆</i><div>Sentinela BR<small>COMO VIRA REALIDADE</small></div></div>
+    <h2>Três caminhos, do mais rápido ao mais amplo</h2>
+    <div class="passo"><b>1. Alertas no Waze, pelo governo</b><p>O Ministério dos Transportes, com o DNIT, publica os trechos críticos no feed oficial do Waze for Cities, programa gratuito para órgãos públicos. Quem já usa o Waze passa a receber o aviso. Uma pessoa física não cria essa camada; o órgão parceiro, sim.</p></div>
+    <div class="passo"><b>2. Módulo no app CNH do Brasil</b><p>Função "Viagem segura" dentro do app oficial da Senatran, ligada ao Registro Nacional Positivo de Condutores (RNPC). Os pontos de bom condutor ficam no CPF do motorista.</p></div>
+    <div class="passo"><b>3. Piloto com este protótipo</b><p>Roda no navegador do celular, sem instalar (aplicativo web). Piloto sugerido com caminhoneiros e motoristas de ônibus em corredores críticos, com a PRF e as concessionárias.</p></div>
+    <p class="fonte">Dados: PRF, sinistros de jan/2021 a out/2026. Risco de cada trecho de 5 km calculado pelo pAInel Sentinela BR. Benefícios marcados como "proposta" dependem de regulamentação.</p>
+   </div>
+   <div class="nav"><button data-ir="s-inicio"><span>🧭</span>Viagem</button><button data-ir="s-pontos"><span>⭐</span>Meus pontos</button><button class="on"><span>ℹ️</span>Como funciona</button></div>
+  </section>
+ </div></div>
+</div>
+<script>__LEAFLET_JS__</script>
+<script id="dados" type="application/json">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById('dados').textContent), L_ = window.L;
+const N = D.lat.length, $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const br3 = b => 'BR-' + String(b).padStart(3, '0'), ufn = i => D.ufs[D.uf[i]], mun = i => D.municipios[D.mun[i]];
+const fmt = n => Math.round(n).toLocaleString('pt-BR'), sa = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const VEL = {carro: 75, moto: 70, onibus: 65, caminhao: 60}, LIM = {carro: 80, moto: 80, onibus: 70, caminhao: 70};
+// ---------- escala do celular no PC ----------
+function escala() { const f = $('#fone'); if (innerWidth <= 640) { f.style.transform = ''; return; } const s = Math.min(1.25, (innerHeight - 30) / 844); f.style.transform = `scale(${s})`; f.style.margin = `${(844 * s - 844) / 2}px ${(390 * s - 390) / 2}px`; }
+addEventListener('resize', escala); escala();
+setInterval(() => { const d = new Date(); $('#hora').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }, 1000);
+// ---------- malha ----------
+const ADJ = Array.from({length: N}, () => []); { const G = D.grafo; for (let k = 0; k < G.a.length; k++) { const n = G.novo ? G.novo[k] : 0; ADJ[G.a[k]].push([G.b[k], G.w[k], n]); ADJ[G.b[k]].push([G.a[k], G.w[k], n]); } }
+const RISCO = i => [0, .8, 2.5, 5][D.nivel[i]] + (D.cronico[i] ? 1.5 : 0);
+function dijkstra(s, t, alfa) {
+  const dist = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), h = [[0, s]]; dist[s] = 0;
+  const push = x => { h.push(x); let i = h.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (h[p][0] <= h[i][0]) break; [h[p], h[i]] = [h[i], h[p]]; i = p; } };
+  const pop = () => { const top = h[0], last = h.pop(); if (h.length) { h[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < h.length && h[l][0] < h[m][0]) m = l; if (r < h.length && h[r][0] < h[m][0]) m = r; if (m === i) break; [h[m], h[i]] = [h[i], h[m]]; i = m; } } return top; };
+  while (h.length) { const [d, u] = pop(); if (u === t) break; if (d > dist[u]) continue; for (const [v, w] of ADJ[u]) { const nd = d + w * (1 + alfa * RISCO(v)); if (nd < dist[v]) { dist[v] = nd; prev[v] = u; push([nd, v]); } } }
+  if (!isFinite(dist[t])) return null;
+  const path = [t]; while (path[path.length - 1] !== s) path.push(prev[path[path.length - 1]]); path.reverse();
+  const acum = [0], semPRF = []; let km = 0, sem = 0;
+  for (let k = 1; k < path.length; k++) { const e = ADJ[path[k - 1]].find(x => x[0] === path[k]); km += e[1]; if (e[2]) sem += e[1]; acum.push(km); }
+  return estat({path, acum, km, sem});
+}
+function estat(r) {
+  r.crit = r.path.filter(i => D.nivel[i] >= 2).length; r.mortos = r.path.reduce((a, i) => a + D.mortos[i], 0);
+  r.risco = r.path.reduce((a, i) => a + RISCO(i), 0);
+  r.vias = []; r.path.forEach((i, k) => { const nm = br3(D.br[i]); const u = r.vias[r.vias.length - 1]; if (D.br[i] && (!u || u.br !== nm)) r.vias.push({br: nm, uf: ufn(i), de: r.acum[k], ate: r.acum[k]}); else if (u) { u.ate = r.acum[k]; if (!u.uf.includes(ufn(i))) u.uf += '/' + ufn(i); } });
+  r.vias = r.vias.filter((v, k, a) => v.ate - v.de > 8 || k === a.length - 1);
+  return r; }
+function rotas(o, d) {
+  const rap = dijkstra(o, d, 0); if (!rap) return null;
+  let seg = rap; for (const a of [.4, 1, 2, 4, 8]) { const x = dijkstra(o, d, a); if (x && x.km <= rap.km * 1.15 && x.risco < seg.risco - .01) seg = x; }
+  // só vale como alternativa se for de fato outro caminho e reduzir o risco de forma perceptível
+  const S = new Set(rap.path), comum = seg.path.filter(i => S.has(i)).length / seg.path.length;
+  const ganho = (rap.crit - seg.crit >= 2) || (rap.mortos - seg.mortos >= Math.max(20, rap.mortos * .1));
+  const real = seg !== rap && ganho;
+  return {rap, seg: real ? seg : rap, igual: !real, comum, quase: !real && seg !== rap}; }
+let DIF = {soSeg: [], soRap: []};
+const principais = r => { const t = {}; for (const v of r.vias) t[v.br] = (t[v.br] || 0) + (v.ate - v.de); return Object.entries(t).filter(([, k]) => k >= 40).sort((a, b) => b[1] - a[1]).map(([b]) => b); };
+function trechosDif(r, outro) {   // partes de r que não existem na outra rota
+  // diferença geográfica: ponto a mais de ~4 km de qualquer ponto da outra rota (BRs sobrepostas não contam como desvio)
+  const G = new Set(); for (const i of outro.path) { const y = Math.round(D.lat[i] / .03), x = Math.round(D.lon[i] / .03); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) G.add((y + dy) + ':' + (x + dx)); }
+  const longe = i => !G.has(Math.round(D.lat[i] / .03) + ':' + Math.round(D.lon[i] / .03)), runs = []; let ini = -1;
+  for (let k = 0; k < r.path.length; k++) { const fora = longe(r.path[k]);
+    if (fora && ini < 0) ini = k; if ((!fora || k === r.path.length - 1) && ini >= 0) { const a = Math.max(0, ini - 1), z = fora ? k : k; runs.push({a, z, km: r.acum[z] - r.acum[a], vias: [...new Set(r.path.slice(ini, z).map(i => br3(D.br[i])))]}); ini = -1; } }
+  return runs.filter(x => x.km >= 15 && !(x.km < 60 && D.mun[r.path[x.a]] === D.mun[r.path[x.z]])).sort((x, y) => y.km - x.km); }
+function diferencas() { const a = principais(R.seg), b = principais(R.rap); return {soSeg: a.filter(x => !b.includes(x)), soRap: b.filter(x => !a.includes(x)), runs: trechosDif(R.seg, R.rap), runsR: trechosDif(R.rap, R.seg)}; }
+// ---------- alertas da rota ----------
+function alertasDa(r) {
+  const out = []; let ult = -99;
+  r.path.forEach((i, k) => { const a = D.alerta[i]; if (!(a || D.nivel[i] >= 2)) return; const km = r.acum[k];
+    if (km - ult < 6 && out.length) { const o = out[out.length - 1]; if (D.nivel[i] > D.nivel[o.i]) Object.assign(o, {i, km}); return; }
+    out.push({i, km}); ult = km; });
+  return out.map(o => { const a = D.alerta[o.i]; return {...o, nivel: D.nivel[o.i], motivo: a ? a[0] : 'Trecho com histórico de mortes', dica: a ? D.dicas[a[1]] : 'Reduza a velocidade e redobre a atenção.'}; }); }
+// ---------- municípios (IBGE, 5.571) ----------
+const MUNS = D.muns.map(m => ({nome: m[0], uf: m[1], i: m[2], dist: m[3], cap: m[4], k: sa(m[0])}));
+const ESCOLHA = {orig: null, dest: null};
+function acharCidade(txt) { const t = sa(txt || ''); const [n, u] = t.split(/\s*[-–,\/]\s*/); return MUNS.find(m => m.k === n && (!u || sa(m.uf) === u)) || null; }
+const item = (m, k) => `<div class="it" data-k="${k}">${m.nome}<span>${m.uf}${m.cap ? ' · capital' : ''}</span></div>`;
+function abrirLista(id) {
+  const el = $('#l-' + id), t = sa($('#' + id).value.split(/\s*[-–]\s*[A-Z]{2}$/)[0]); let html;
+  if (!t) { const caps = MUNS.map((m, k) => [m, k]).filter(([m]) => m.cap).sort((a, b) => a[0].uf.localeCompare(b[0].uf));
+    html = '<div class="gr">Capitais</div>' + caps.map(([m, k]) => item(m, k)).join('') + `<div class="gr">Todos os ${MUNS.length.toLocaleString('pt-BR')} municípios</div>` + MUNS.map(item).join(''); }
+  else { const ini = [], meio = []; MUNS.forEach((m, k) => { const c = (m.k + ' ' + sa(m.uf)); if (m.k.startsWith(t) || c.startsWith(t)) ini.push(k); else if (m.k.includes(t)) meio.push(k); });
+    const ex = k => MUNS[k].k === t ? 0 : MUNS[k].cap ? 1 : 2; ini.sort((a, b) => ex(a) - ex(b) || a - b);
+    const ks = ini.concat(meio); html = ks.length ? ks.map(k => item(MUNS[k], k)).join('') : '<div class="it" style="cursor:default;color:var(--sub)">Nenhum município com esse nome</div>'; }
+  el.innerHTML = html; el.classList.add('on'); el.scrollTop = 0; }
+function fecharListas() { $$('.lista').forEach(l => l.classList.remove('on')); }
+function escolher(id, k) { const m = MUNS[k]; ESCOLHA[id] = m; $('#' + id).value = `${m.nome} - ${m.uf}`; $('#' + id).closest('.cx').classList.add('tem'); fecharListas(); $('#erro').textContent = ''; }
+for (const id of ['orig', 'dest']) {
+  const inp = $('#' + id);
+  inp.addEventListener('focus', () => { fecharListas(); abrirLista(id); });
+  inp.addEventListener('click', () => abrirLista(id));
+  inp.addEventListener('input', () => { ESCOLHA[id] = null; inp.closest('.cx').classList.toggle('tem', !!inp.value);
+    if (/\s-\s[A-Za-z]{2}$/.test(inp.value)) { const m = acharCidade(inp.value); if (m) { escolher(id, MUNS.indexOf(m)); return; } } abrirLista(id); });
+  inp.addEventListener('blur', () => setTimeout(() => { $('#l-' + id).classList.remove('on'); if (!ESCOLHA[id] && inp.value) { const m = acharCidade(inp.value); if (m) escolher(id, MUNS.indexOf(m)); } }, 150));
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { const f = $('#l-' + id + ' .it[data-k]'); if (f) escolher(id, +f.dataset.k); e.preventDefault(); } if (e.key === 'Escape') fecharListas(); });
+  $('#l-' + id).addEventListener('mousedown', e => { const it = e.target.closest('.it[data-k]'); if (it) { e.preventDefault(); escolher(id, +it.dataset.k); } });
+}
+$$('.limpa').forEach(b => b.addEventListener('click', () => { const id = b.dataset.l; $('#' + id).value = ''; ESCOLHA[id] = null; b.closest('.cx').classList.remove('tem'); $('#' + id).focus(); }));
+document.addEventListener('mousedown', e => { if (!e.target.closest('.cx')) fecharListas(); });
+const SUG = ['Boa Vista - RR', 'São Paulo - SP', 'Belo Horizonte - MG', 'Goiânia - GO'];
+$('#sug').innerHTML = '<span class="sub" style="align-self:center;font-size:12.5px">Exemplos:</span>' + SUG.map(c => `<button class="chip" data-c="${c}">${c.split(' - ')[0]}</button>`).join('');
+$$('#sug .chip').forEach(b => b.onclick = () => { const m = acharCidade(b.dataset.c); if (!m) return; if (!ESCOLHA.orig) escolher('orig', MUNS.indexOf(acharCidade('Brasília - DF'))); escolher('dest', MUNS.indexOf(m)); });
+let veic = 'carro'; $$('#veic .chip').forEach(b => b.onclick = () => { veic = b.dataset.v; $$('#veic .chip').forEach(x => x.classList.toggle('on', x === b)); });
+// ---------- telas ----------
+function ir(id) { $$('.scr').forEach(s => s.classList.toggle('on', s.id === id)); if (id === 's-pontos') pontosTela(); if (id === 's-inicio') { pararSim(); } }
+document.addEventListener('click', e => { const b = e.target.closest('[data-ir]'); if (b) ir(b.dataset.ir); });
+// ---------- mapa ----------
+const mapa = L_.map('mapa', {zoomControl: false, attributionControl: false, preferCanvas: true, minZoom: 3, maxZoom: 13, zoomSnap: .25}).setView([-14, -52], 4);
+for (const poly of D.contorno) L_.polygon(poly.map(([x, y]) => [y, x]), {color: '#1b3150', weight: 1, fillColor: '#0a1322', fillOpacity: 1, interactive: false}).addTo(mapa);
+L_.polyline(D.linhas.map(([b, c]) => { const ll = []; for (let k = 0; k < c.length; k += 2) ll.push([c[k], c[k + 1]]); return ll; }), {color: '#1f4363', weight: 1.3, interactive: false}).addTo(mapa);
+let camada = L_.layerGroup().addTo(mapa), escolha = 'seg', R = null, OD = null;
+const ll = r => r.path.map(i => [D.lat[i], D.lon[i]]);
+function desenharRotas() {
+  camada.clearLayers(); const outra = escolha === 'seg' ? 'rap' : 'seg';
+  if (!R.igual) L_.polyline(ll(R[outra]), {color: outra === 'seg' ? '#34d399' : '#60a5fa', weight: 4, opacity: .8, dashArray: '6 7', interactive: false}).addTo(camada);
+  const r = R[escolha], cor = escolha === 'seg' ? '#34d399' : '#60a5fa';
+  L_.polyline(ll(r), {color: cor, weight: 9, opacity: .25, interactive: false}).addTo(camada); L_.polyline(ll(r), {color: cor, weight: 4.5, interactive: false}).addTo(camada);
+  for (const a of alertasDa(r)) L_.circleMarker([D.lat[a.i], D.lon[a.i]], {radius: a.nivel >= 3 ? 6 : 4.5, color: '#fff', weight: 1, fillColor: a.nivel >= 3 ? '#f43f5e' : '#fb923c', fillOpacity: 1, interactive: false}).addTo(camada);
+  if (!R.igual) { for (const x of trechosDif(R.seg, R.rap)) L_.polyline(R.seg.path.slice(x.a, x.z + 1).map(i => [D.lat[i], D.lon[i]]), {color: '#34d399', weight: 8, opacity: .95, interactive: false}).addTo(camada);
+    for (const x of trechosDif(R.rap, R.seg)) L_.polyline(R.rap.path.slice(x.a, x.z + 1).map(i => [D.lat[i], D.lon[i]]), {color: '#60a5fa', weight: 6, opacity: .95, dashArray: '8 6', interactive: false}).addTo(camada); }
+  const o = r.path[0], d = r.path[r.path.length - 1];
+  L_.circleMarker([D.lat[o], D.lon[o]], {radius: 7, color: '#fff', weight: 2, fillColor: '#22d3ee', fillOpacity: 1}).addTo(camada);
+  L_.circleMarker([D.lat[d], D.lon[d]], {radius: 7, color: '#fff', weight: 2, fillColor: '#e879f9', fillOpacity: 1}).addTo(camada);
+  mapa.fitBounds(L_.latLngBounds(ll(R.rap).concat(ll(R.seg))), {paddingTopLeft: [20, 110], paddingBottomRight: [20, 470]}); }
+const horas = (km) => { const h = km / VEL[veic]; return `${Math.floor(h)} h ${String(Math.round(h % 1 * 60)).padStart(2, '0')}`; };
+function listaRotas() {
+  const a = R.seg, b = R.rap, evit = b.crit - a.crit, mm = b.mortos - a.mortos; DIF = diferencas();
+  const card = (k, r, tit, cor) => `<div class="rota ${escolha === k ? 'on' : ''} ${k}" data-k="${k}"><div class="h"><span>${tit}</span>${k === 'seg' && !R.igual ? `<span class="sel" style="background:rgba(52,211,153,.15);color:#6ee7b7">RECOMENDADA</span>` : ''}</div>
+   <div class="nums"><span><b class="mono">${fmt(r.km)}</b> km</span><span><b class="mono">${horas(r.km)}</b></span><span><b class="mono" style="color:${r.crit ? '#fda4af' : 'inherit'}">${r.crit}</b> trechos críticos</span></div>
+   <div class="nums" style="margin-top:2px"><span>${fmt(r.mortos)} mortes registradas desde 2021 nesta rota</span></div>
+   ${R.igual ? '' : `<div class="nums" style="margin-top:4px"><span>Via <b style="color:${k === 'seg' ? '#6ee7b7' : '#93c5fd'}">${(k === 'seg' ? DIF.soSeg : DIF.soRap).slice(0, 3).join(' · ') || ((k === 'seg' ? DIF.runs : DIF.runsR)[0] ? (k === 'seg' ? DIF.runs : DIF.runsR)[0].vias.slice(0, 2).join('/') + ' no trecho que muda' : principais(r).slice(0, 2).join(' · '))}</b></span></div>`}</div>`;
+  const longe = [OD.o, OD.d].filter(m => m.dist > 120), perto = [OD.o, OD.d].filter(m => m.dist > 10 && m.dist <= 120);
+  const aviso = longe.map(m => `<div class="sub" style="font-size:12px;margin:4px 0;color:#fdba74">${m.nome} (${m.uf}) fica a ${fmt(m.dist)} km da malha federal mapeada, sem ligação por rodovia federal (acesso por estrada local, balsa ou avião). A rota vai até ${mun(m.i)} (${ufn(m.i)}).</div>`).join('')
+    + (perto.length ? `<div class="sub" style="font-size:12px;margin:4px 0 2px">Acesso por estrada local até a rodovia federal: ${perto.map(m => `${m.nome}, ${fmt(m.dist)} km`).join(' · ')}</div>` : '');
+  $('#r-lista').innerHTML = aviso + (R.igual ? card('seg', a, '🛡️ Rota recomendada') + `<div class="ganho">Não há caminho federal mais seguro para este destino: a rota segue pelo corredor ${principais(a).slice(0, 3).join(' · ')}, e um desvio custaria mais de 15% de distância ou passaria pelos mesmos trechos críticos. Os ${a.crit} trechos críticos terão alerta de voz com o motivo.</div>`
+    : card('seg', a, '🛡️ Mais segura') + card('rap', b, '⚡ Mais rápida') + `<div class="ganho">Desvia de ${evit} trecho${evit === 1 ? '' : 's'} crítico${evit === 1 ? '' : 's'} e de ${fmt(mm)} mortes registradas, com ${fmt(a.km - b.km)} km a mais (+${((a.km / b.km - 1) * 100).toLocaleString('pt-BR', {maximumFractionDigits: 1})}%).${DIF.runs.length ? `<br>Onde muda: ${DIF.runs.slice(0, 2).map(x => `entre ${mun(R.seg.path[x.a])} (${ufn(R.seg.path[x.a])}) e ${mun(R.seg.path[x.z])} (${ufn(R.seg.path[x.z])}), ${fmt(x.km)} km pela ${x.vias.slice(0, 2).join('/')}`).join('; ')}${DIF.runs.length > 2 ? ` e mais ${DIF.runs.length - 2} desvio${DIF.runs.length > 3 ? 's' : ''}` : ''}.` : ''}</div>`);
+  $$('#r-lista .rota').forEach(x => x.onclick = () => { escolha = x.dataset.k; listaRotas(); desenharRotas(); }); }
+$('#ver').onclick = () => {
+  const o = ESCOLHA.orig || acharCidade($('#orig').value), d = ESCOLHA.dest || acharCidade($('#dest').value);
+  if (!o || !d) { $('#erro').textContent = !o ? 'Escolha a cidade de origem na lista.' : 'Escolha o destino na lista.'; return; }
+  if (o === d) { $('#erro').textContent = 'Origem e destino são a mesma cidade.'; return; } if (o.i === d.i) { $('#erro').textContent = 'As duas cidades ficam junto do mesmo ponto da rodovia federal: escolha um destino mais distante.'; return; }
+  R = rotas(o.i, d.i); if (!R) { $('#erro').textContent = 'Destino fora da malha federal mapeada.'; return; }
+  OD = {o, d}; escolha = 'seg'; $('#erro').textContent = '';
+  $('#r-od').innerHTML = `<b>${o.nome} (${o.uf})</b> → <b>${d.nome} (${d.uf})</b>`; ir('s-rotas'); setTimeout(() => { mapa.invalidateSize(); listaRotas(); desenharRotas(); }, 60); };
+// ---------- voz ----------
+let voz = true, vozPt = null;
+const acharVoz = () => { const vs = speechSynthesis.getVoices(); vozPt = vs.find(v => /pt-BR/i.test(v.lang) && /google|francisca|luciana|natural/i.test(v.name)) || vs.find(v => /pt-BR/i.test(v.lang)) || vs.find(v => /^pt/i.test(v.lang)) || null; };
+try { acharVoz(); speechSynthesis.onvoiceschanged = acharVoz; } catch {}
+const falado = t => t.replace(/BR-0*(\d+)/g, 'BR $1').replace(/\bkm\b/g, 'quilômetros');
+function falar(t) { return new Promise(res => { if (!voz || !window.speechSynthesis) return setTimeout(res, 3500); try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(falado(t)); u.lang = 'pt-BR'; u.rate = 1.02; if (vozPt) u.voice = vozPt; u.onend = () => setTimeout(res, 600); u.onerror = () => res(); speechSynthesis.speak(u); setTimeout(res, 16000); } catch { res(); } }); }
+// ---------- simulação ----------
+let sim = null, carro = null, mult = 1;
+function pararSim() { if (sim) { cancelAnimationFrame(sim.raf); sim = null; } try { speechSynthesis.cancel(); } catch {} $('#alerta').classList.remove('on'); }
+function posEm(r, km) { let k = sim.k; while (k < r.acum.length - 2 && r.acum[k + 1] < km) k++; sim.k = k; const a = r.path[k], b = r.path[Math.min(k + 1, r.path.length - 1)], seg = (r.acum[k + 1] - r.acum[k]) || 1, f = Math.min(1, Math.max(0, (km - r.acum[k]) / seg)); return [D.lat[a] + (D.lat[b] - D.lat[a]) * f, D.lon[a] + (D.lon[b] - D.lon[a]) * f]; }
+function viaEm(r, km) { return r.vias.find(v => km >= v.de - .1 && km <= v.ate + .1) || [...r.vias].sort((a, b) => Math.min(Math.abs(km - a.de), Math.abs(km - a.ate)) - Math.min(Math.abs(km - b.de), Math.abs(km - b.ate)))[0]; }
+$('#iniciar').onclick = () => {
+  const r = R[escolha]; ir('s-nav'); camada.clearLayers();
+  L_.polyline(ll(r), {color: '#34d399', weight: 10, opacity: .22, interactive: false}).addTo(camada); L_.polyline(ll(r), {color: escolha === 'seg' ? '#34d399' : '#60a5fa', weight: 5, interactive: false}).addTo(camada);
+  const al = alertasDa(r); for (const a of al) L_.circleMarker([D.lat[a.i], D.lon[a.i]], {radius: 7, color: '#fff', weight: 1.5, fillColor: a.nivel >= 3 ? '#f43f5e' : '#fb923c', fillOpacity: 1, interactive: false}).addTo(camada);
+  carro = L_.marker([D.lat[r.path[0]], D.lon[r.path[0]]], {icon: L_.divIcon({className: '', html: '<div class="carro"></div>', iconSize: [26, 26], iconAnchor: [13, 13]}), interactive: false}).addTo(camada);
+  mapa.invalidateSize(); mapa.setView(carro.getLatLng(), 9.5, {animate: false});
+  const dur = Math.min(150, Math.max(45, r.km / 30)); // segundos de demonstração no 1×
+  sim = {r, al, prox: 0, km: 0, k: 0, kmps: r.km / dur, t0: performance.now(), pausa: false, ditos: 0, saida: new Date()};
+  const v1 = r.vias[0]; falar(`Rota ${escolha === 'seg' ? 'mais segura' : 'mais rápida'} iniciada para ${OD.d.nome}. ${fmt(r.km)} quilômetros. Siga pela ${v1 ? v1.br : 'rodovia'}. Vou avisar antes de cada trecho perigoso.`);
+  passo(performance.now()); };
+function painel() { const s = sim, r = s.r, v = viaEm(r, s.km), falta = r.km - s.km;
+  $('#n-via').textContent = v ? `${v.br} · ${v.uf}` : 'Rodovia federal';
+  const pv = r.vias.find(x => x.de > s.km + .5 && (!v || x.br !== v.br)); $('#n-inst').textContent = pv ? `Em ${fmt(pv.de - s.km)} km, siga pela ${pv.br}` : `Siga até ${OD.d.nome}`;
+  $('#n-falta').textContent = fmt(falta) + ' km';
+  const eta = new Date(s.saida.getTime() + r.km / VEL[veic] * 3600e3); $('#n-eta').textContent = (r.km / VEL[veic] > 20 ? eta.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}) + ' ' : '') + eta.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+  const pa = s.al[s.prox]; $('#n-prox').innerHTML = pa ? `Próximo alerta em <b>${fmt(Math.max(0, pa.km - s.km))} km</b> · ${br3(D.br[pa.i])}, ${mun(pa.i)} (${ufn(pa.i)})` : 'Sem trechos críticos à frente.';
+  $('#n-vel').textContent = s.pausa ? (pa && pa.nivel >= 3 ? 60 : 70) : LIM[veic]; }
+async function avisar(a) {
+  sim.pausa = true; const crit = a.nivel >= 3;
+  $('#alerta').classList.toggle('medio', !crit); $('#a-t').textContent = crit ? 'ATENÇÃO · TRECHO CRÍTICO' : 'ATENÇÃO · TRECHO PERIGOSO';
+  $('#a-tit').textContent = `${br3(D.br[a.i])}, km ${D.km[a.i]} · ${mun(a.i)} (${ufn(a.i)})`;
+  $('#a-mot').textContent = `Motivo: ${a.motivo}. ${D.mortos[a.i] ? `${D.mortos[a.i]} morte${D.mortos[a.i] > 1 ? 's' : ''} neste ponto desde 2021.` : ''}`; $('#a-dica').textContent = a.dica;
+  $('#alerta').classList.add('on'); painel();
+  const minimo = new Promise(r => setTimeout(r, 5500));
+  await Promise.all([minimo, falar(`Atenção. Em 2 quilômetros, trecho ${crit ? 'crítico' : 'perigoso'} na ${br3(D.br[a.i])}, em ${mun(a.i)}. Motivo: ${a.motivo}. ${a.dica}`)]);
+  sim && (sim.ditos++, sim.pausa = false, sim.t0 = performance.now()); $('#alerta').classList.remove('on'); }
+function passo(t) {
+  const s = sim; if (!s) return;
+  if (!s.pausa) { const dt = Math.min(.1, (t - s.t0) / 1000); s.t0 = t; s.km = Math.min(s.r.km, s.km + dt * s.kmps * mult);
+    const p = posEm(s.r, s.km); carro.setLatLng(p); mapa.panTo(p, {animate: false});
+    const a = s.al[s.prox]; if (a && s.km >= a.km - 2) { s.prox++; avisar(a); }
+    if (s.km >= s.r.km) { chegar(); return; } }
+  else s.t0 = t;
+  if (Math.round(t / 250) !== s.ult) { s.ult = Math.round(t / 250); painel(); }
+  s.raf = requestAnimationFrame(passo); }
+$('#c-vel').onclick = () => { mult = mult === 1 ? 3 : mult === 3 ? 8 : 1; $('#c-vel').textContent = `Simulação ${mult}×`; };
+$('#c-voz').onclick = () => { voz = !voz; $('#c-voz').classList.toggle('on', voz); $('#c-voz').textContent = voz ? '🔊 Voz' : '🔇 Voz'; if (!voz) try { speechSynthesis.cancel(); } catch {} };
+$('#c-fim').onclick = () => chegar(true);
+// ---------- chegada e pontos ----------
+let saldo = 0, viagens = 0; try { saldo = +localStorage.getItem('sentinela-pts') || 0; viagens = +localStorage.getItem('sentinela-viag') || 0; } catch {}
+const BEN = [['🪪', 'Selo de bom condutor no RNPC', 'O Registro Nacional Positivo de Condutores já existe no app CNH do Brasil; os pontos reforçam o histórico do motorista.', 'ok', 'EXISTE'],
+ ['💰', 'Desconto no IPVA para bom motorista', 'Programas estaduais já dão desconto a quem não tem multa (ex.: RS). Os pontos podem virar critério adicional.', 'ok', 'EXISTE EM ESTADOS'],
+ ['🛣️', 'Desconto no pedágio federal', 'Desconto na tarifa das concessões para quem acumula pontos, por regulamentação da ANTT.', 'pr', 'PROPOSTA'],
+ ['🚚', 'Caminhoneiros e ônibus', 'Pontos contam para frete prioritário em programas de embarcadores e para bonificação de motoristas nas empresas de ônibus.', 'pr', 'PROPOSTA'],
+ ['🎁', 'Parceiros na estrada', 'Desconto em postos e pontos de parada e descanso credenciados.', 'pr', 'PROPOSTA']];
+const benHTML = () => BEN.map(([i, t, p, c, s]) => `<div class="ben"><i>${i}</i><div><b>${t}<span class="st ${c}">${s}</span></b><p>${p}</p></div></div>`).join('');
+function chegar(parcial) {
+  const s = sim; if (!s) return; const r = s.r, km = parcial ? s.km : r.km; pararSim();
+  const evit = escolha === 'seg' && !R.igual ? R.rap.crit - R.seg.crit : 0;
+  const pts = Math.round(km / 100) * 10 + s.ditos * 20 + (evit > 0 ? 50 : 0); saldo += pts; viagens++;
+  try { localStorage.setItem('sentinela-pts', saldo); localStorage.setItem('sentinela-viag', viagens); } catch {}
+  $('#f-tit').textContent = parcial ? 'Viagem encerrada' : 'Você chegou!'; $('#f-sub').textContent = `${OD.o.nome} → ${OD.d.nome} (${OD.d.uf}) · ${escolha === 'seg' ? 'rota mais segura' : 'rota mais rápida'}`;
+  $('#f-kpi').innerHTML = `<div><b class="mono">${fmt(km)}</b><span>km percorridos</span></div><div><b class="mono" style="color:#fda4af">${s.ditos}</b><span>alertas recebidos</span></div><div><b class="mono" style="color:#6ee7b7">${evit}</b><span>trechos críticos evitados</span></div>`;
+  $('#f-pts').textContent = '+' + fmt(pts); $('#f-ptsx').textContent = `${Math.round(km / 100) * 10} pela distância · ${s.ditos * 20} pelos alertas${evit > 0 ? ' · 50 pela rota segura' : ''}`;
+  $('#f-ben').innerHTML = benHTML(); ir('s-fim');
+  falar(parcial ? 'Viagem encerrada.' : `Você chegou a ${OD.d.nome}. Ganhou ${pts} pontos de condução segura.`); }
+function pontosTela() { $('#p-saldo').textContent = fmt(saldo); $('#p-viag').textContent = viagens ? `${viagens} viage${viagens > 1 ? 'ns' : 'm'} com alertas ligados` : 'Nenhuma viagem ainda'; $('#p-ben').innerHTML = benHTML(); }
+window.__app = {rotas, acharCidade, R: () => R, sim: () => sim, ir};
+</script>
+</body>
+</html>

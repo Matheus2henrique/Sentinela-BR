@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+node_modules/
+real/*.pkl
+real/brutos/
+sentinela_br/p6/saida/
+sentinela_br/appcel/saida/
+sentinela_br/p6/icm_csv/
+sentinela_br/p6/icm_base/
+*.log
+.env

@@ -1,0 +1,213 @@
+[
+ {
+  "secao": "1. Bases que alimentam o painel",
+  "itens": [
+   {
+    "fonte": "Sinistros de trânsito nas rodovias federais (por ocorrência e por pessoa)",
+    "orgao": "Polícia Rodoviária Federal (PRF)",
+    "conteudo": "Data, hora, BR, km, coordenada, causa, tipo, clima, vítimas. Jan/2021 a out/2026",
+    "situacao": "Integrada",
+    "link": "https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf"
+   },
+   {
+    "fonte": "Condições do Pavimento – ICM (Índice de Condição da Manutenção)",
+    "orgao": "DNIT – dados abertos",
+    "conteudo": "ICM por km da malha pavimentada sob administração do DNIT. Arquivos: icm_dezembro_csv (dez/2021), icm_12_2022, icm-dados-aberto-12_2023, icm-dados-abertos-12_2024, levantamentos_pavimentada_2025_12 e levantamentos_pavimentada_2026_10",
+    "situacao": "Integrada · arquivos oficiais carregados em 24/11/2026",
+    "link": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento"
+   },
+   {
+    "fonte": "Trechos concedidos (km inicial e final), arquivo 8/2026",
+    "orgao": "ANTT – dados abertos",
+    "conteudo": "Responsável de cada trecho: concessionária ou DNIT",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://dados.antt.gov.br/dataset/trecho-concedido"
+   },
+   {
+    "fonte": "Atlas Digital de Desastres no Brasil (base S2iD 1991–2025, v1.1 de 06/08/2026)",
+    "orgao": "MIDR – Defesa Civil",
+    "conteudo": "Desastres registrados e reconhecidos por município. No painel: chuva, inundação, enxurrada, alagamento, deslizamento, erosão, vento, granizo, tornado e incêndio florestal, 2016–2025",
+    "situacao": "Integrada · arquivo oficial carregado em 24/11/2026",
+    "link": "https://atlasdigital.mdr.gov.br"
+   },
+   {
+    "fonte": "AdaptaBrasil – Desastres geo-hidrológicos: inundações, enxurradas e alagamentos (indicador 60041, risco de impacto)",
+    "orgao": "MCTI / INPE",
+    "conteudo": "Risco de impacto por município com a chuva intensa projetada; exportação 2050, cenário pessimista (5.569 municípios classificados)",
+    "situacao": "Integrada · arquivo oficial carregado em 24/11/2026",
+    "link": "https://adaptabrasil.mcti.gov.br"
+   },
+   {
+    "fonte": "Metadados do indicador 60041",
+    "orgao": "INPE – catálogo de dados",
+    "conteudo": "Definição do indicador: ameaça climática, geomorfologia, uso do solo, vulnerabilidade e exposição",
+    "situacao": "Referência",
+    "link": "https://data.inpe.br/geonetwork/srv/api/records/adaptabrasil60041"
+   },
+   {
+    "fonte": "Mortalidade (SIM) – dados abertos",
+    "orgao": "Ministério da Saúde",
+    "conteudo": "Declarações de óbito (Mortalidade Geral 1979–2026 prévia). Óbitos de trânsito, CID-10 V01–V89: 37.150 em 2024; 36.955 em 2025 (preliminar)",
+    "situacao": "Integrada · série nacional 2010–2025 (2025 preliminar, arquivo Mortalidade Geral 2025 processado em 24/11/2026)",
+    "link": "https://dadosabertos.saude.gov.br/dataset/sim"
+   },
+   {
+    "fonte": "Série de óbitos e taxa 2010–2023",
+    "orgao": "Ministério da Saúde (apresentação à Câmara, 2025)",
+    "conteudo": "Óbitos e taxa por 100 mil habitantes",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-permanentes/cvt/apresentacoes-em-eventos/eventos-2025/arquivos-de-eventos-2025/ap-25-08-26-marli-mesquita-minsaude"
+   },
+   {
+    "fonte": "Óbitos de 2024 (37.150) usados pela auditoria do TCU",
+    "orgao": "SIM/MS, divulgado pelo Portal do Trânsito",
+    "conteudo": "Total nacional de 2024",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://www.portaldotransito.com.br/?p=58404"
+   },
+   {
+    "fonte": "Estimativas de população 2024 e 2025",
+    "orgao": "IBGE",
+    "conteudo": "População por UF e município (1º/7). 2025: 213.421.037 habitantes",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://ftp.ibge.gov.br/Estimativas_de_Populacao/Estimativas_2024/estimativa_dou_2024.pdf"
+   },
+   {
+    "fonte": "Frota de veículos (dez/2024)",
+    "orgao": "Senatran, publicada no Anuário Estatístico do IBGE",
+    "conteudo": "Frota com placa por UF e tipo",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://anuario.ibge.gov.br/images/aeb/2024/s5/2_pdf/s5t2102.pdf"
+   },
+   {
+    "fonte": "Frota de veículos – página oficial",
+    "orgao": "Senatran / Ministério dos Transportes",
+    "conteudo": "Frota mensal por UF, município e tipo",
+    "situacao": "Integrada",
+    "link": "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-Senatran/frota-de-veiculos-2024"
+   },
+   {
+    "fonte": "Municípios brasileiros com código e coordenadas do IBGE",
+    "orgao": "Compilação pública dos códigos do IBGE (repositório aberto)",
+    "conteudo": "Nome, UF, código e coordenadas dos 5.571 municípios (inclui Distrito Federal e Fernando de Noronha) (app do motorista: origem e destino)",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://github.com/kelvins/municipios-brasileiros"
+   }
+  ]
+ },
+ {
+  "secao": "2. Custos de referência e eficácia das medidas",
+  "itens": [
+   {
+    "fonte": "Custos Médios Gerenciais (CMG)",
+    "orgao": "DNIT",
+    "conteudo": "Tabelas trimestrais; a mais recente é de julho de 2026",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/custos-referenciais/custo-medio-gerencial"
+   },
+   {
+    "fonte": "CMG de março de 2015 (terceira faixa: R$ 1,80 a 2,10 milhões por km)",
+    "orgao": "DNIT",
+    "conteudo": "Base do custo da faixa adicional 2+1 (a atualizar pelo CMG vigente)",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/custos-e-pagamentos/custos-e-pagamentos-dnit/custo-medio-gerencial/CustosMdiosGer.MARO15.pdf"
+   },
+   {
+    "fonte": "SICRO abr/2026 – barreira New Jersey (R$ 326,31/m)",
+    "orgao": "DNIT (consulta pela plataforma Orçamentor)",
+    "conteudo": "Composição 3713822",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://www.orcamentor.com/sicro/composicoes/?page=30"
+   },
+   {
+    "fonte": "SICRO abr/2026 – defensa maleável simples (R$ 851,99/m)",
+    "orgao": "DNIT (consulta pela plataforma Orçamentor)",
+    "conteudo": "Composição 3713600",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://orcamentor.com/sicro/composicoes/3713600/"
+   },
+   {
+    "fonte": "Fiscalização eletrônica de velocidade (R$ 4 mil por faixa/mês)",
+    "orgao": "DNIT – PNCV (divulgado pelo Setcesp, 2016)",
+    "conteudo": "Custo mensal por faixa monitorada",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://setcesp.org.br/noticias/fiscalizacao-eletronica-esta-garantida-nas-rodovias-federais/"
+   },
+   {
+    "fonte": "Passarela na BR-020 (≈ R$ 4,8 milhões)",
+    "orgao": "DER-DF (Jornal de Brasília, nov/2026)",
+    "conteudo": "Referência de custo de travessia segura",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://jornaldebrasilia.com.br/brasilia/publicado-aviso-de-licitacao-para-construir-passarela-na-br-020/"
+   },
+   {
+    "fonte": "Viaduto da BR-470/SC (R$ 17,5 milhões)",
+    "orgao": "DNIT (2025)",
+    "conteudo": "Teto de custo de interseção em desnível",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://www.gov.br/dnit/pt-br/assuntos/noticias/dnit-entrega-terceiro-viaduto-da-br-470-sc-em-2025-no-vale-do-itajai"
+   },
+   {
+    "fonte": "Proven Safety Countermeasures",
+    "orgao": "FHWA (EUA)",
+    "conteudo": "Eficácia de barreira central, rotatória, sonorizadores, travessias, radares",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://highways.dot.gov/safety/proven-safety-countermeasures"
+   },
+   {
+    "fonte": "Barreiras centrais e vias 2+1",
+    "orgao": "Trafikverket (Suécia)",
+    "conteudo": "Redução de mortes com separação de sentidos",
+    "situacao": "Integrada · Conferido em 23/11/2026",
+    "link": "https://bransch.trafikverket.se/en/startpage/operations/Operations-road/vision-zero-academy/Key-interventions-based-on-Vision-Zero/median-barriers/"
+   }
+  ]
+ },
+ {
+  "secao": "3. Referências de contexto",
+  "itens": [
+   {
+    "fonte": "Pnatrans – revisão e meta",
+    "orgao": "Ministério dos Transportes",
+    "conteudo": "Meta de reduzir à metade o índice de mortes até 2030",
+    "situacao": "Referência · Conferido em 23/11/2026",
+    "link": "https://www.gov.br/participamaisbrasil/revisao-pnatrans"
+   },
+   {
+    "fonte": "Acórdão 1799/2026-TCU-Plenário (notícia)",
+    "orgao": "TCU",
+    "conteudo": "Auditoria do Pnatrans",
+    "situacao": "Referência · Conferido em 23/11/2026",
+    "link": "https://portal.tcu.gov.br/imprensa/noticias/tribunal-avalia-plano-nacional-para-reduzir-mortes-e-lesoes-no-transito"
+   },
+   {
+    "fonte": "Waze for Cities",
+    "orgao": "Waze / Google",
+    "conteudo": "Canal oficial para órgãos públicos enviarem alertas e interdições",
+    "situacao": "Referência · Conferido em 23/11/2026",
+    "link": "https://www.waze.com/pt-BR/wazeforcities/"
+   },
+   {
+    "fonte": "Feed de dados de parceiros do Waze",
+    "orgao": "Google",
+    "conteudo": "Formato e passos para publicar alertas",
+    "situacao": "Referência · Conferido em 23/11/2026",
+    "link": "https://developers.google.com/waze/data-feed/overview?hl=pt-br"
+   },
+   {
+    "fonte": "Registro Nacional Positivo de Condutores (RNPC)",
+    "orgao": "Senatran (reportagem CNN Brasil)",
+    "conteudo": "Cadastro do bom condutor no app CNH do Brasil",
+    "situacao": "Referência · Conferido em 23/11/2026",
+    "link": "https://www.cnnbrasil.com.br/auto/como-funciona-e-quais-beneficios-do-cadastro-de-bom-motorista/"
+   },
+   {
+    "fonte": "Desconto do Bom Motorista no IPVA (RS)",
+    "orgao": "Governo do Rio Grande do Sul",
+    "conteudo": "Até 15% de desconto para quem não tem multa",
+    "situacao": "Referência · Conferido em 23/11/2026",
+    "link": "https://estado.rs.gov.br/descontos-dos-programas-bom-cidadao-e-bom-motorista-chegam-a-r-288-milhoes"
+   }
+  ]
+ }
+]
